@@ -11,6 +11,7 @@ use yii\widgets\Pjax;
 /** @var common\models\search\CourseSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 /** @var $category */
+/** @var $sidebar */
 
 $this->title = Yii::t('app', $category);
 $this->params['breadcrumbs'][] = $this->title;
@@ -20,7 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Добавить'), ['create', 'category' => $category], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Добавить'), ['create', 'category' => $category, 'sidebar' => $sidebar], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -30,6 +31,9 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'tableOptions' => ['class' => 'table table-striped'],
+        'pager' => [
+            'class' => \yii\bootstrap5\LinkPager::class,
+        ],
         'columns' => [
             [
                 'attribute' => 'id',
@@ -38,8 +42,12 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'title',
                 'format' => 'raw',
-                'value' => function ($model) {
-                    return Html::a($model->title, ['view', 'id' => $model->id, 'category' => $model->category]);
+                'value' => function ($model) use ($category, $sidebar) {
+                    return Html::a($model->title, ['view',
+                        'id' => $model->id,
+                        'category' => $category,
+                        'sidebar' => $sidebar,
+                    ]);
                 },
             ],
             'month',

@@ -7,8 +7,12 @@ use yii\bootstrap5\ActiveForm;
 /** @var common\models\Course $model */
 /** @var yii\bootstrap5\ActiveForm $form */
 /** @var $category */
+/** @var $sidebar */
 
 $this->title = 'Изменить цикл';
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', $category), 'url' => ['index', 'category' => $category]];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', $model->title), 'url' => ['view', 'id' => $model->id,'category' => $category, 'sidebar' => $sidebar]];
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="course-form">

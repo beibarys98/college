@@ -10,6 +10,7 @@ use yii\helpers\Url;
 /** @var $model */
 /** @var $dataProvider */
 /** @var $category */
+/** @var $sidebar */
 
 $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', $category), 'url' => ['index', 'category' => $category]];
@@ -37,9 +38,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
                 'template' => '{update}<span style="margin: 10px;"></span>{delete}',
-                'urlCreator' => function ($action, Course $model, $key, $index, $column) {
+                'urlCreator' => function ($action, Course $model, $key, $index, $column) use($category, $sidebar) {
                     if ($action === 'update') {
-                        return Url::toRoute(['update', 'id' => $model->id, 'category' => $model->category]); // Custom update URL
+                        return Url::toRoute(['update', 'id' => $model->id, 'category' => $category, 'sidebar' => $sidebar]); // Custom update URL
                     }
                     return Url::toRoute([$action, 'id' => $model->id]); // Default for other actions
                 }
@@ -50,10 +51,16 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <br>
 
+    <h1>Участники</h1>
+    [gridview]
+
+    <br>
+
     <h1>Тесты</h1>
+    [gridview]
 
     <br>
 
     <h1>Анкета</h1>
-
+    [gridview]
 </div>

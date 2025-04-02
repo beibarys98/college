@@ -1,36 +1,47 @@
 <?php
 
-use yii\helpers\Html;
-use yii\widgets\DetailView;
+use common\models\Seminar;
+use yii\grid\ActionColumn;
+use yii\grid\GridView;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this */
-/** @var common\models\Seminar $model */
+/** @var $model */
+/** @var $dataProvider */
+/** @var $category */
 
 $this->title = $model->title;
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Seminars'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', $category), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
 \yii\web\YiiAsset::register($this);
 ?>
 <div class="seminar-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1><?= $this->title ?></h1>
 
-    <p>
-        <?= Html::a(Yii::t('app', 'Update'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
-                'method' => 'post',
+    <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        'summary' => false,
+        'tableOptions' => ['class' => 'table table-striped'],
+        'columns' => [
+            [
+                'attribute' => 'id',
+                'headerOptions' => ['style' => 'width: 5%;'],
             ],
-        ]) ?>
-    </p>
-
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
             'title',
+            [
+                'headerOptions' => ['style' => 'width: 5%;'],
+                'class' => ActionColumn::className(),
+                'template' => '{update}<span style="margin: 10px;"></span>{delete}',
+                'urlCreator' => function ($action, Seminar $model, $key, $index, $column) use ($category) {
+                    if ($action === 'update') {
+                        return Url::toRoute(['update', 'id' => $model->id, 'category' => $category]); // Custom update URL
+                    }
+                    return Url::toRoute([$action, 'id' => $model->id]); // Default for other actions
+                }
+            ]
+
         ],
     ]) ?>
 

@@ -26,15 +26,20 @@ $this->title = Yii::t('app', 'Участники');
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
+        'tableOptions' => ['class' => 'table table-striped'],
+        'pager' => [
+            'class' => \yii\bootstrap5\LinkPager::class,
+        ],
         'columns' => [
             [
                 'attribute' => 'id',
-                'headerOptions' => ['style' => 'width: 10%;'],
+                'headerOptions' => ['style' => 'width: 5%;'],
             ],
             'name',
             'telephone',
             'organisation',
             [
+                'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
                 'urlCreator' => function ($action, Participant $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);

@@ -4,18 +4,15 @@ namespace frontend\controllers;
 
 use common\models\Participant;
 use common\models\search\ParticipantSearch;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
-/**
- * ParticipantController implements the CRUD actions for Participant model.
- */
 class ParticipantController extends Controller
 {
-    /**
-     * @inheritDoc
-     */
     public function behaviors()
     {
         return array_merge(
@@ -31,11 +28,6 @@ class ParticipantController extends Controller
         );
     }
 
-    /**
-     * Lists all Participant models.
-     *
-     * @return string
-     */
     public function actionIndex()
     {
         $searchModel = new ParticipantSearch();
@@ -47,12 +39,6 @@ class ParticipantController extends Controller
         ]);
     }
 
-    /**
-     * Displays a single Participant model.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionView($id)
     {
         return $this->render('view', [
@@ -60,17 +46,34 @@ class ParticipantController extends Controller
         ]);
     }
 
-    /**
-     * Creates a new Participant model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
     public function actionCreate()
     {
         $model = new Participant();
 
         if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+
+            if ($model->file) {
+                // Process Excel file
+                $filePath = Yii::getAlias('@webroot/uploads/') . $model->file->name;
+                if ($model->file->saveAs($filePath)) {
+                    $spreadsheet = IOFactory::load($filePath);
+                    $sheet = $spreadsheet->getActiveSheet();
+                    $rows = $sheet->toArray();
+
+                    // Assuming the first row contains headers
+                    foreach ($rows as $row) {
+                        $participant = new Participant();
+                        $participant->name = trim($row[0]);
+                        $participant->telephone = trim($row[1]);
+                        $participant->organisation = trim($row[2]);
+
+                        $participant->save(false);
+                    }
+
+                    return $this->redirect(['index']);
+                }
+            } elseif ($model->load($this->request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
@@ -82,13 +85,6 @@ class ParticipantController extends Controller
         ]);
     }
 
-    /**
-     * Updates an existing Participant model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
@@ -102,13 +98,6 @@ class ParticipantController extends Controller
         ]);
     }
 
-    /**
-     * Deletes an existing Participant model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
@@ -116,13 +105,6 @@ class ParticipantController extends Controller
         return $this->redirect(['index']);
     }
 
-    /**
-     * Finds the Participant model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Participant the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     protected function findModel($id)
     {
         if (($model = Participant::findOne(['id' => $id])) !== null) {

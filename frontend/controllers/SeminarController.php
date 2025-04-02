@@ -4,6 +4,7 @@ namespace frontend\controllers;
 
 use common\models\search\SeminarSearch;
 use common\models\Seminar;
+use yii\data\ActiveDataProvider;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -44,10 +45,16 @@ class SeminarController extends Controller
         ]);
     }
 
-    public function actionView($id)
+    public function actionView($id, $category)
     {
+        $dataProvider = new ActiveDataProvider([
+            'query' => Seminar::find()->andWhere(['id' => $id]),
+        ]);
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'dataProvider' => $dataProvider,
+            'category' => $category,
         ]);
     }
 

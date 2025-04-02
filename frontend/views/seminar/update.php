@@ -8,7 +8,10 @@ use yii\bootstrap5\ActiveForm;
 /** @var yii\bootstrap5\ActiveForm $form */
 /** @var $category */
 
-$this->title = 'Изменить'
+$this->title = 'Изменить';
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', $category), 'url' => ['index', 'category' => $category]];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', $model->title), 'url' => ['view', 'id' => $model->id,'category' => $category]];
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="seminar-form">

@@ -28,19 +28,24 @@ $this->title = Yii::t('app', $category);
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
+        'tableOptions' => ['class' => 'table table-striped'],
+        'pager' => [
+            'class' => \yii\bootstrap5\LinkPager::class,
+        ],
         'columns' => [
             [
                 'attribute' => 'id',
-                'headerOptions' => ['style' => 'width: 10%;'],
+                'headerOptions' => ['style' => 'width: 5%;'],
             ],
             [
                 'attribute' => 'title',
                 'format' => 'raw',
-                'value' => function ($model) {
-                    return Html::a($model->title, ['update', 'id' => $model->id, 'category' => $model->category]);
+                'value' => function ($model) use ($category) {
+                    return Html::a($model->title, ['view', 'id' => $model->id, 'category' => $category]);
                 },
             ],
             [
+                'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
                 'template' => '{delete}',
                 'urlCreator' => function ($action, Seminar $model, $key, $index, $column) {

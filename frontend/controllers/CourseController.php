@@ -26,7 +26,7 @@ class CourseController extends Controller
         );
     }
 
-    public function actionIndex($category)
+    public function actionIndex($category, $sidebar)
     {
         $searchModel = new CourseSearch();
 
@@ -42,29 +42,11 @@ class CourseController extends Controller
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'category' => $category,
+            'sidebar' => $sidebar,
         ]);
     }
 
-    public function actionIndex2($category)
-    {
-        $searchModel = new CourseSearch();
-
-        // Add the category filter to the search model query
-        $queryParams = $this->request->queryParams;
-        if ($category) {
-            $queryParams['CourseSearch']['category'] = $category;  // Assuming the column name is 'category'
-        }
-
-        $dataProvider = $searchModel->search($queryParams);
-
-        return $this->render('index2', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'category' => $category,
-        ]);
-    }
-
-    public function actionView($id, $category)
+    public function actionView($id, $category, $sidebar)
     {
         $dataProvider = new ActiveDataProvider([
             'query' => Course::find()->andWhere(['id' => $id]),
@@ -74,10 +56,11 @@ class CourseController extends Controller
             'model' => $this->findModel($id),
             'dataProvider' => $dataProvider,
             'category' => $category,
+            'sidebar' => $sidebar,
         ]);
     }
 
-    public function actionCreate($category)
+    public function actionCreate($category, $sidebar)
     {
         $model = new Course();
 
@@ -94,30 +77,11 @@ class CourseController extends Controller
         return $this->render('create', [
             'model' => $model,
             'category' => $category,
+            'sidebar' => $sidebar,
         ]);
     }
 
-    public function actionCreate2($category)
-    {
-        $model = new Course();
-
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post())) {
-                $model->category = $category;
-                $model->save();
-                return $this->redirect(['index2', 'category' => $category]);
-            }
-        } else {
-            $model->loadDefaultValues();
-        }
-
-        return $this->render('create2', [
-            'model' => $model,
-            'category' => $category,
-        ]);
-    }
-
-    public function actionUpdate($id, $category)
+    public function actionUpdate($id, $category, $sidebar)
     {
         $model = $this->findModel($id);
 
@@ -128,20 +92,7 @@ class CourseController extends Controller
         return $this->render('update', [
             'model' => $model,
             'category' => $category,
-        ]);
-    }
-
-    public function actionUpdate2($id, $category)
-    {
-        $model = $this->findModel($id);
-
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['index2', 'category' => $category]);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
-            'category' => $category,
+            'sidebar' => $sidebar,
         ]);
     }
 

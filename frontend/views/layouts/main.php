@@ -9,6 +9,9 @@ use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 
 AppAsset::register($this);
+
+$currentCategory = Yii::$app->request->get('category');
+$sidebar = Yii::$app->request->get('sidebar');
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -38,17 +41,9 @@ AppAsset::register($this);
                     <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#qualificationMenu" aria-expanded="false">
                         Повышение квалификации
                     </a>
-                    <div class="collapse <?= Yii::$app->controller->id == 'course'
-                                            && (Yii::$app->controller->action->id == 'index'
-                                                || Yii::$app->controller->action->id == 'create'
-                                                || Yii::$app->controller->action->id == 'update'
-                                                || Yii::$app->controller->action->id == 'view')
-                                            ? 'show'
-                                            : '' ?>"
-                         id="qualificationMenu">
+                    <div class="collapse <?= $sidebar == 1 ? 'show' : '' ?>" id="qualificationMenu">
                         <ul class="nav flex-column ms-3">
                             <?php
-                            $currentCategory = Yii::$app->request->get('category');
                             $categories = [
                                 'sestrin' => 'Сестринское дело',
                                 'akusher' => 'Акушерское дело',
@@ -62,7 +57,7 @@ AppAsset::register($this);
 
                             foreach ($categories as $key => $name) {
                                 $isActive = ($currentCategory === $name) ? 'active' : '';
-                                echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category' => $name]) . '" class="nav-link text-white ' . $isActive . '">' . $name . '</a></li>';
+                                echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category' => $name, 'sidebar' => 1]) . '" class="nav-link text-white ' . $isActive . '">' . $name . '</a></li>';
                             }
                             ?>
                         </ul>
@@ -73,17 +68,9 @@ AppAsset::register($this);
                     <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#qualificationMenu2" aria-expanded="false">
                         Сертификационный курс
                     </a>
-                    <div class="collapse <?= Yii::$app->controller->id == 'course'
-                                            && (Yii::$app->controller->action->id == 'index2'
-                                                || Yii::$app->controller->action->id == 'create2'
-                                                || Yii::$app->controller->action->id == 'update2'
-                                                || Yii::$app->controller->action->id == 'view2')
-                                            ? 'show'
-                                            : '' ?>"
-                         id="qualificationMenu2">
+                    <div class="collapse <?= $sidebar == 2 ? 'show' : '' ?>" id="qualificationMenu2">
                         <ul class="nav flex-column ms-3">
                             <?php
-                            $currentCategory = Yii::$app->request->get('category');
                             $categories = [
                                 'medses' => 'Медсестра общей практики',
                                 'rentgen' => 'Сестринское дело в рентгенологии',
@@ -93,7 +80,7 @@ AppAsset::register($this);
 
                             foreach ($categories as $key => $name) {
                                 $isActive = ($currentCategory === $name) ? 'active' : '';
-                                echo '<li><a href="' . \yii\helpers\Url::to(['course/index2', 'category' => $name]) . '" class="nav-link text-white ' . $isActive . '">' . $name . '</a></li>';
+                                echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category' => $name, 'sidebar' => 2]) . '" class="nav-link text-white ' . $isActive . '">' . $name . '</a></li>';
                             }
                             ?>
                         </ul>
