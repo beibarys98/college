@@ -13,6 +13,7 @@ use yii\widgets\Pjax;
 /** @var $category */
 
 $this->title = Yii::t('app', $category);
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="seminar-index">
 

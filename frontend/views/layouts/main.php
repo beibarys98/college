@@ -32,7 +32,7 @@ $sidebar = Yii::$app->request->get('sidebar');
             <ul class="nav nav-pills flex-column mb-auto">
                 <li>
                     <a href="<?= \yii\helpers\Url::to(['participant/index']) ?>"
-                       class="nav-link <?= Yii::$app->controller->id == 'participant' ? 'active' : 'text-white' ?>">
+                       class="nav-link <?= Yii::$app->controller->id == 'participant' && Yii::$app->controller->action->id == 'index' ? 'active' : 'text-white' ?>">
                         Участники
                     </a>
                 </li>
@@ -41,7 +41,7 @@ $sidebar = Yii::$app->request->get('sidebar');
                     <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#qualificationMenu" aria-expanded="false">
                         Повышение квалификации
                     </a>
-                    <div class="collapse <?= $sidebar == 1 ? 'show' : '' ?>" id="qualificationMenu">
+                    <div class="collapse show" id="qualificationMenu">
                         <ul class="nav flex-column ms-3">
                             <?php
                             $categories = [
@@ -68,7 +68,7 @@ $sidebar = Yii::$app->request->get('sidebar');
                     <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#qualificationMenu2" aria-expanded="false">
                         Сертификационный курс
                     </a>
-                    <div class="collapse <?= $sidebar == 2 ? 'show' : '' ?>" id="qualificationMenu2">
+                    <div class="collapse show" id="qualificationMenu2">
                         <ul class="nav flex-column ms-3">
                             <?php
                             $categories = [
@@ -100,6 +100,13 @@ $sidebar = Yii::$app->request->get('sidebar');
                     echo '<li><a href="' . \yii\helpers\Url::to(['seminar/index', 'category' => $name]) . '" class="nav-link text-white ' . $isActive . '">' . $name . '</a></li>';
                 }
                 ?>
+                <hr>
+                <li>
+                    <a href="<?= \yii\helpers\Url::to(['place/index']) ?>"
+                       class="nav-link <?= Yii::$app->controller->id == 'place' ? 'active' : 'text-white' ?>">
+                        Настройки
+                    </a>
+                </li>
                 <hr>
             </ul>
             <div class="mt-auto">

@@ -2,8 +2,12 @@
 
 namespace frontend\controllers;
 
+use common\models\Certificate;
 use common\models\Course;
+use common\models\search\CertificateSearch;
 use common\models\search\CourseSearch;
+use common\models\search\ParticipantSearch;
+use common\models\Test;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -30,11 +34,8 @@ class CourseController extends Controller
     {
         $searchModel = new CourseSearch();
 
-        // Add the category filter to the search model query
         $queryParams = $this->request->queryParams;
-        if ($category) {
-            $queryParams['CourseSearch']['category'] = $category;  // Assuming the column name is 'category'
-        }
+        $queryParams['CourseSearch']['category'] = $category;
 
         $dataProvider = $searchModel->search($queryParams);
 
@@ -46,17 +47,38 @@ class CourseController extends Controller
         ]);
     }
 
-    public function actionView($id, $category, $sidebar)
+    public function actionView($id, $category)
     {
         $dataProvider = new ActiveDataProvider([
             'query' => Course::find()->andWhere(['id' => $id]),
+        ]);
+
+        $participantsSM = new ParticipantSearch();
+        $queryParams = $this->request->queryParams;
+        $queryParams['ParticipantSearch']['course_id'] = $id;
+        $participantsDP = $participantsSM->search($queryParams);
+
+        $certificatesDP = new ActiveDataProvider([
+            'query' => Certificate::find()->andWhere(['course_id' => $id]),
+        ]);
+
+        $testsDP = new ActiveDataProvider([
+            'query' => Test::find()->andWhere(['course_id' => $id]),
+        ]);
+
+        $surveyDP = new ActiveDataProvider([
+            'query' => Test::find()->andWhere(['course_id' => $id, 'status' => 'new_survey']),
         ]);
 
         return $this->render('view', [
             'model' => $this->findModel($id),
             'dataProvider' => $dataProvider,
             'category' => $category,
-            'sidebar' => $sidebar,
+            'participantsDP' => $participantsDP,
+            'participantsSM' => $participantsSM,
+            'certificatesDP' => $certificatesDP,
+            'testsDP' => $testsDP,
+            'surveyDP' => $surveyDP,
         ]);
     }
 
@@ -81,7 +103,7 @@ class CourseController extends Controller
         ]);
     }
 
-    public function actionUpdate($id, $category, $sidebar)
+    public function actionUpdate($id, $category)
     {
         $model = $this->findModel($id);
 
@@ -91,8 +113,7 @@ class CourseController extends Controller
 
         return $this->render('update', [
             'model' => $model,
-            'category' => $category,
-            'sidebar' => $sidebar,
+            'category' => $category
         ]);
     }
 

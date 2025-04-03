@@ -35,6 +35,9 @@ class Participant extends \yii\db\ActiveRecord
             [['name', 'telephone', 'organisation'], 'required'],
             [['name', 'organisation'], 'string', 'max' => 255],
             [['telephone'], 'string', 'max' => 20],
+
+            [['course_id'], 'integer'],
+            [['course_id'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['course_id' => 'id']],
         ];
     }
 
@@ -49,6 +52,11 @@ class Participant extends \yii\db\ActiveRecord
             'telephone' => Yii::t('app', 'Telephone'),
             'organisation' => Yii::t('app', 'Organisation'),
         ];
+    }
+
+    public function getCourse()
+    {
+        return $this->hasOne(Course::class, ['id' => 'course_id']);
     }
 
     /**

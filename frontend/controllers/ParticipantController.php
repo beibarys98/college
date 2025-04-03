@@ -4,6 +4,7 @@ namespace frontend\controllers;
 
 use common\models\Participant;
 use common\models\search\ParticipantSearch;
+use common\models\User;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yii;
 use yii\web\Controller;
@@ -46,7 +47,7 @@ class ParticipantController extends Controller
         ]);
     }
 
-    public function actionCreate()
+    public function actionCreate($course_id, $category, $type)
     {
         $model = new Participant();
 
@@ -54,24 +55,32 @@ class ParticipantController extends Controller
             $model->file = UploadedFile::getInstance($model, 'file');
 
             if ($model->file) {
-                // Process Excel file
                 $filePath = Yii::getAlias('@webroot/uploads/') . $model->file->name;
                 if ($model->file->saveAs($filePath)) {
                     $spreadsheet = IOFactory::load($filePath);
                     $sheet = $spreadsheet->getActiveSheet();
                     $rows = $sheet->toArray();
 
-                    // Assuming the first row contains headers
                     foreach ($rows as $row) {
                         $participant = new Participant();
+                        $participant->course_id = $course_id;
                         $participant->name = trim($row[0]);
-                        $participant->telephone = trim($row[1]);
-                        $participant->organisation = trim($row[2]);
+
+                        $participant->telephone = isset($row[1]) ? trim($row[1]) : '';
+                        $participant->organisation = isset($row[2]) ? trim($row[2]) : '';
 
                         $participant->save(false);
+
+                        $user = new User();
+                        $user->username = $participant->id;
+                        $user->password = Yii::$app->security->generatePasswordHash('password');
+                        $user->generateAuthKey();
+                        $user->save(false);
                     }
 
-                    return $this->redirect(['index']);
+                    unlink($filePath);
+
+                    return $this->redirect([$type . '/view', 'id' => $course_id, 'category' => $category]);
                 }
             } elseif ($model->load($this->request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
@@ -82,6 +91,7 @@ class ParticipantController extends Controller
 
         return $this->render('create', [
             'model' => $model,
+            'category' => $category
         ]);
     }
 

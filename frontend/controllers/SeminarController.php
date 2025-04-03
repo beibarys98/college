@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\models\search\ParticipantSearch;
 use common\models\search\SeminarSearch;
 use common\models\Seminar;
 use yii\data\ActiveDataProvider;
@@ -51,10 +52,17 @@ class SeminarController extends Controller
             'query' => Seminar::find()->andWhere(['id' => $id]),
         ]);
 
+        $participantsSM = new ParticipantSearch();
+        $queryParams = $this->request->queryParams;
+        $queryParams['ParticipantSearch']['course_id'] = $id;
+        $participantsDP = $participantsSM->search($queryParams);
+
         return $this->render('view', [
             'model' => $this->findModel($id),
             'dataProvider' => $dataProvider,
             'category' => $category,
+            'participantsDP' => $participantsDP,
+            'participantsSM' => $participantsSM,
         ]);
     }
 

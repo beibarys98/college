@@ -4,12 +4,12 @@ namespace common\models\search;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Participant;
+use common\models\Question;
 
 /**
- * ParticipantSearch represents the model behind the search form of `common\models\Participant`.
+ * QuestionSearch represents the model behind the search form of `common\models\Question`.
  */
-class ParticipantSearch extends Participant
+class QuestionSearch extends Question
 {
     /**
      * {@inheritdoc}
@@ -17,8 +17,8 @@ class ParticipantSearch extends Participant
     public function rules()
     {
         return [
-            [['id', 'course_id'], 'integer'],
-            [['name', 'telephone', 'organisation'], 'safe'],
+            [['id', 'test_id', 'answer'], 'integer'],
+            [['question', 'img_path'], 'safe'],
         ];
     }
 
@@ -41,12 +41,9 @@ class ParticipantSearch extends Participant
      */
     public function search($params, $formName = null)
     {
-        $query = Participant::find();
+        $query = Question::find();
 
         // add conditions that should always apply here
-        if (isset($params['ParticipantSearch']['course_id']) && $params['ParticipantSearch']['course_id']) {
-            $query->andWhere(['course_id' => $params['ParticipantSearch']['course_id']]);
-        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -63,12 +60,12 @@ class ParticipantSearch extends Participant
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'test_id' => $this->test_id,
+            'answer' => $this->answer,
         ]);
 
-        $query->andFilterWhere(['like', 'course_id', $this->course_id])
-            ->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'telephone', $this->telephone])
-            ->andFilterWhere(['like', 'organisation', $this->organisation]);
+        $query->andFilterWhere(['like', 'question', $this->question])
+            ->andFilterWhere(['like', 'img_path', $this->img_path]);
 
         return $dataProvider;
     }

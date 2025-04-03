@@ -11,14 +11,11 @@ use yii\widgets\Pjax;
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = Yii::t('app', 'Участники');
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="participant-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>
-        <?= Html::a(Yii::t('app', 'Добавить'), ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
 
     <?php Pjax::begin(); ?>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
@@ -35,12 +32,23 @@ $this->title = Yii::t('app', 'Участники');
                 'attribute' => 'id',
                 'headerOptions' => ['style' => 'width: 5%;'],
             ],
-            'name',
+            [
+                'attribute' => 'course_id',
+                'value' => 'course.title',
+            ],
+            [
+                'attribute' => 'name',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    return Html::a($model->name, ['participant/update', 'id' => $model->id]);
+                }
+            ],
             'telephone',
             'organisation',
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
+                'template' => '{delete}',
                 'urlCreator' => function ($action, Participant $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
                  }

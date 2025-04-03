@@ -1,27 +1,23 @@
 <?php
 
-use common\models\Course;
+use common\models\Place;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
-
 /** @var yii\web\View $this */
-/** @var common\models\search\CourseSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
-/** @var $category */
-/** @var $sidebar */
 
-$this->title = Yii::t('app', $category);
+$this->title = Yii::t('app', 'Места');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="course-index">
+<div class="place-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Добавить'), ['create', 'category' => $category, 'sidebar' => $sidebar], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Добавить'), ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -29,7 +25,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
         'tableOptions' => ['class' => 'table table-striped'],
         'pager' => [
             'class' => \yii\bootstrap5\LinkPager::class,
@@ -39,23 +34,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'id',
                 'headerOptions' => ['style' => 'width: 5%;'],
             ],
-            [
-                'attribute' => 'title',
-                'format' => 'raw',
-                'value' => function ($model) use ($category) {
-                    return Html::a($model->title, ['view',
-                        'id' => $model->id,
-                        'category' => $category
-                    ]);
-                },
-            ],
-            'month',
-            'duration',
+            'title',
+            'score',
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
                 'template' => '{delete}',
-                'urlCreator' => function ($action, Course $model, $key, $index, $column) {
+                'urlCreator' => function ($action, Place $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
                  }
             ],

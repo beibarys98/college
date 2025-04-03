@@ -4,12 +4,12 @@ namespace common\models\search;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Participant;
+use common\models\Place;
 
 /**
- * ParticipantSearch represents the model behind the search form of `common\models\Participant`.
+ * PlaceSearch represents the model behind the search form of `common\models\Place`.
  */
-class ParticipantSearch extends Participant
+class PlaceSearch extends Place
 {
     /**
      * {@inheritdoc}
@@ -17,8 +17,8 @@ class ParticipantSearch extends Participant
     public function rules()
     {
         return [
-            [['id', 'course_id'], 'integer'],
-            [['name', 'telephone', 'organisation'], 'safe'],
+            [['id', 'score'], 'integer'],
+            [['title'], 'safe'],
         ];
     }
 
@@ -41,12 +41,9 @@ class ParticipantSearch extends Participant
      */
     public function search($params, $formName = null)
     {
-        $query = Participant::find();
+        $query = Place::find();
 
         // add conditions that should always apply here
-        if (isset($params['ParticipantSearch']['course_id']) && $params['ParticipantSearch']['course_id']) {
-            $query->andWhere(['course_id' => $params['ParticipantSearch']['course_id']]);
-        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -63,12 +60,10 @@ class ParticipantSearch extends Participant
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'score' => $this->score,
         ]);
 
-        $query->andFilterWhere(['like', 'course_id', $this->course_id])
-            ->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'telephone', $this->telephone])
-            ->andFilterWhere(['like', 'organisation', $this->organisation]);
+        $query->andFilterWhere(['like', 'title', $this->title]);
 
         return $dataProvider;
     }

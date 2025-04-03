@@ -66,32 +66,6 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
-    public function actionPov($category)
-    {
-        return $this->render('pov', [
-            'category' => $category,
-        ]);
-    }
-
-    public function actionCert($category)
-    {
-        return $this->render('cert', [
-            'category' => $category,
-        ]);
-    }
-
-    public function actionSeminar($category)
-    {
-        return $this->render('seminar', [
-            'category' => $category,
-        ]);
-    }
-
-    public function actionParticipants()
-    {
-        return $this->render('participants');
-    }
-
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {
