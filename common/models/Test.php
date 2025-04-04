@@ -18,7 +18,7 @@ use Yii;
  */
 class Test extends \yii\db\ActiveRecord
 {
-
+    public $file;
 
     /**
      * {@inheritdoc}
@@ -34,6 +34,8 @@ class Test extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['file'], 'file', 'extensions' => 'doc, docx', 'skipOnEmpty' => false],
+
             [['status'], 'default', 'value' => 'new'],
             [['course_id', 'lang', 'duration'], 'required'],
             [['course_id'], 'integer'],

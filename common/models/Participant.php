@@ -32,7 +32,7 @@ class Participant extends \yii\db\ActiveRecord
         return [
             [['file'], 'file', 'extensions' => 'xls, xlsx', 'skipOnEmpty' => false],
 
-            [['name', 'telephone', 'organisation'], 'required'],
+            [['name'], 'required'],
             [['name', 'organisation'], 'string', 'max' => 255],
             [['telephone'], 'string', 'max' => 20],
 

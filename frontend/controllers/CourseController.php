@@ -90,7 +90,7 @@ class CourseController extends Controller
             if ($model->load($this->request->post())) {
                 $model->category = $category;
                 $model->save();
-                return $this->redirect(['index', 'category' => $category]);
+                return $this->redirect(['course/view', 'id' => $model->id, 'category' => $category]);
             }
         } else {
             $model->loadDefaultValues();

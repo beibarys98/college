@@ -7,6 +7,7 @@ use common\models\search\ParticipantSearch;
 use common\models\User;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -42,8 +43,13 @@ class ParticipantController extends Controller
 
     public function actionView($id)
     {
+        $dataProvider = new ActiveDataProvider([
+            'query' => Participant::find()->andWhere(['id' => $id]),
+        ]);
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -95,12 +101,16 @@ class ParticipantController extends Controller
         ]);
     }
 
-    public function actionUpdate($id)
+    public function actionUpdate($id, $course_id = null, $category = null, $type = null)
     {
         $model = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->request->isPost && $model->load($this->request->post()) && $model->save(false)) {
+            if (!empty($course_id) && !empty($category) && !empty($type)) {
+                return $this->redirect([$type . '/view', 'id' => $course_id, 'category' => $category]);
+            }else{
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [
@@ -108,11 +118,17 @@ class ParticipantController extends Controller
         ]);
     }
 
-    public function actionDelete($id)
+    public function actionDelete($id, $course_id = null, $category = null, $type = null)
     {
+        $user = User::findOne(['username' => $id]);
         $this->findModel($id)->delete();
+        $user->delete();
 
-        return $this->redirect(['index']);
+        if (!empty($course_id) && !empty($category) && !empty($type)) {
+            return $this->redirect([$type . '/view', 'id' => $course_id, 'category' => $category]);
+        }else{
+            return $this->redirect(['index']);
+        }
     }
 
     protected function findModel($id)

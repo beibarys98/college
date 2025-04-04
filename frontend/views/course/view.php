@@ -78,8 +78,8 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'name',
                 'format' => 'raw',
-                'value' => function ($model) {
-                    return Html::a($model->name, ['participant/update', 'id' => $model->id]);
+                'value' => function ($modelP) use ($model, $category) {
+                    return Html::a($modelP->name, ['participant/update', 'id' => $modelP->id, 'course_id' => $model->id, 'category' => $category, 'type' => 'course']);
                 }
             ],
             'telephone',
@@ -88,8 +88,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
                 'template' => '{delete}',
-                'urlCreator' => function ($action, Participant $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
+                'urlCreator' => function ($action, Participant $modelP) use ($model, $category) {
+                    if ($action === 'delete') {
+                        return Url::toRoute(['participant/delete', 'id' => $modelP->id, 'course_id' => $model->id, 'category' => $category, 'type' => 'course']); // Custom update URL
+                    }
+                    return Url::toRoute([$action, 'id' => $modelP->id]); // Default for other actions
                 }
             ],
         ],
@@ -99,7 +102,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1>Тесты</h1>
     <p>
-        <?= Html::a(Yii::t('app', 'Добавить'), ['test/create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Добавить'), ['test/create', 'course_id' => $model->id], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= GridView::widget([
@@ -120,8 +123,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
                 'template' => '{delete}',
-                'urlCreator' => function ($action, Test $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
+                'urlCreator' => function ($action, Test $model){
+                    if ($action === 'delete') {
+                        return Url::toRoute(['test/delete', 'id' => $model->id]); // Custom update URL
+                    }
+                    return Url::toRoute([$action, 'id' => $model->id]); // Default for other actions
                 }
             ],
         ],
