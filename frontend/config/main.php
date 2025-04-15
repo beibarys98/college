@@ -9,7 +9,7 @@ $params = array_merge(
 return [
     'name' => 'AHMC',
     'on beforeRequest' => function ($event) {
-        Yii::$app->language = Yii::$app->session->get('language', 'ru');
+        Yii::$app->language = Yii::$app->session->get('language', 'kz');
     },
 
     'id' => 'app-frontend',

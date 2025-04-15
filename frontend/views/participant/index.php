@@ -32,7 +32,7 @@ $this->title = Yii::t('app', 'Участники');
                 'headerOptions' => ['style' => 'width: 5%;'],
             ],
             [
-                'attribute' => 'course_id',
+                'attribute' => 'course',
                 'value' => 'course.title',
             ],
             [

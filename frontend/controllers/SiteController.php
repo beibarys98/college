@@ -103,4 +103,14 @@ class SiteController extends Controller
             'model' => $model,
         ]);
     }
+
+    public function actionLanguage($view)
+    {
+        if(Yii::$app->language == 'kz'){
+            Yii::$app->session->set('language', 'ru');
+        }else{
+            Yii::$app->session->set('language', 'kz');
+        }
+        return $this->redirect([$view]);
+    }
 }

@@ -18,7 +18,11 @@ $this->title = Yii::t('app', 'Добавить категорию');
 
     <?= $form->field($model, 'title_ru')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'type')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'type')->dropDownList([
+        'pov' => 'Повышение квалификации',
+        'cert' => 'Сертификационный курс',
+        'sem' => 'Семинары'
+    ], ['prompt' => 'Выберите тип']) ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('app', 'Добавить'), ['class' => 'btn btn-outline-primary']) ?>

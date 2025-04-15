@@ -21,7 +21,7 @@ $this->title = Yii::$app->name;
 
     <?= $form->field($model, 'username')->textInput([
         'autofocus' => true,
-        'placeholder' => Yii::t('app', 'ЖСН'),
+        'placeholder' => Yii::t('app', 'ID'),
         'id' => 'username-input'
     ])->label(false) ?>
 
@@ -32,7 +32,11 @@ $this->title = Yii::$app->name;
     </div>
 
     <div class="form-group text-center mt-3">
-        <?= Html::submitButton(Yii::t('app', 'Кіру'), ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
+        <?= Html::submitButton(Yii::t('app', 'Кіру / Войти'), ['class' => 'btn btn-outline-primary', 'name' => 'login-button']) ?>
+    </div>
+
+    <div class="text-end mt-2">
+        <?= Html::a(Yii::t('app', 'Тіркелу / Регистрация'), ['site/signup'], ['class' => 'btn btn-outline-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

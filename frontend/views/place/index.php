@@ -71,13 +71,13 @@ $this->title = Yii::t('app', 'Места');
                 'headerOptions' => ['style' => 'width: 5%;'],
             ],
             [
-                'attribute' => 'title',
+                'attribute' => 'title_ru',
                 'format' => 'raw',
                 'value' => function ($model) {
-                    return Html::a($model->title, ['category/update', 'id' => $model->id]);
+                    return Html::a($model->title_ru, ['category/update', 'id' => $model->id]);
                 }
             ],
-            'title_ru',
+            'title',
             'type',
             [
                 'headerOptions' => ['style' => 'width: 5%;'],

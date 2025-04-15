@@ -11,6 +11,8 @@ use common\models\Participant;
  */
 class ParticipantSearch extends Participant
 {
+    public $course;
+
     /**
      * {@inheritdoc}
      */
@@ -18,7 +20,7 @@ class ParticipantSearch extends Participant
     {
         return [
             [['id', 'course_id'], 'integer'],
-            [['name', 'telephone', 'organisation'], 'safe'],
+            [['name', 'telephone', 'organisation', 'course'], 'safe'],
         ];
     }
 
@@ -41,15 +43,27 @@ class ParticipantSearch extends Participant
      */
     public function search($params, $formName = null)
     {
-        $query = Participant::find();
+        $query = Participant::find()->joinWith('course');
 
         // add conditions that should always apply here
-        if (isset($params['ParticipantSearch']['course_id']) && $params['ParticipantSearch']['course_id']) {
+        if (!empty($params['ParticipantSearch']['course_id'])) {
             $query->andWhere(['course_id' => $params['ParticipantSearch']['course_id']]);
         }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'attributes' => [
+                    'id',
+                    'name',
+                    'telephone',
+                    'organisation',
+                    'course' => [
+                        'asc' => ['course.title' => SORT_ASC],
+                        'desc' => ['course.title' => SORT_DESC],
+                    ],
+                ],
+            ],
         ]);
 
         $this->load($params, $formName);
@@ -62,13 +76,13 @@ class ParticipantSearch extends Participant
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
+            'participant.id' => $this->id,
         ]);
 
-        $query->andFilterWhere(['like', 'course_id', $this->course_id])
-            ->andFilterWhere(['like', 'name', $this->name])
+        $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'telephone', $this->telephone])
-            ->andFilterWhere(['like', 'organisation', $this->organisation]);
+            ->andFilterWhere(['like', 'organisation', $this->organisation])
+            ->andFilterWhere(['like', 'course.title', $this->course]);;
 
         return $dataProvider;
     }
