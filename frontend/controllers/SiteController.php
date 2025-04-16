@@ -59,22 +59,23 @@ class SiteController extends Controller
             return $this->redirect('/site/login');
         }
 
-        if(User::findOne(Yii::$app->user->id)->username == 'admin'){
+        if(Yii::$app->user->identity->ssn == 'admin'){
+            Yii::$app->session->set('language', 'ru');
             return $this->redirect('/participant/index');
+        }else{
+            return $this->render('index');
         }
-
-        return $this->render('index');
     }
 
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            return $this->redirect(['/site/index']);
         }
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->redirect(['/site/index']);
         }
 
         $model->password = '';
@@ -88,15 +89,15 @@ class SiteController extends Controller
     {
         Yii::$app->user->logout();
 
-        return $this->goHome();
+        return $this->redirect(['/site/index']);
     }
 
     public function actionSignup()
     {
         $model = new SignupForm();
         if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            Yii::$app->session->setFlash('success', 'Thank you for registration. Please check your inbox for verification email.');
-            return $this->goHome();
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Тіркелу сәтті өтті!'));
+            return $this->redirect(['/site/index']);
         }
 
         return $this->render('signup', [

@@ -31,13 +31,20 @@ $this->title = $model->name;
             ],
             [
                 'attribute' => 'course_id',
+                'label' => 'Цикл',
                 'format' => 'raw',
                 'value' => function ($model) {
                     return Html::a($model->course->title, ['course/view', 'id' => $model->course_id, 'category_id' => $model->course->category_id]);
                 },
             ],
-            'telephone',
-            'organisation',
+            [
+                'attribute' => 'telephone',
+                'label' => 'Телефон'
+            ],
+            [
+                'attribute' => 'organisation',
+                'label' => 'Организация'
+            ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),

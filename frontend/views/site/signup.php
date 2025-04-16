@@ -19,16 +19,30 @@ $this->title = 'Signup';
 
     <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
 
-    <?= $form->field($model, 'username')->textInput(['autofocus' => true, 'placeholder' => 'ЖСН / ИИН'])->label(false) ?>
+    <?= $form->field($model, 'username')->textInput(['autofocus' => true, 'placeholder' => Yii::t('app', 'ЖСН')])->label(false) ?>
 
-    <?= $form->field($model, 'password')->passwordInput()->label(false) ?>
+    <?= $form->field($model, 'name')->textInput(['placeholder' => Yii::t('app', 'ТАЖ')])->label(false) ?>
+
+    <?= $form->field($model, 'telephone')->textInput(['placeholder' => 'Телефон'])->label(false) ?>
+
+    <?= $form->field($model, 'organisation')->textInput(['placeholder' => Yii::t('app', 'Мекеме')])->label(false) ?>
 
     <div class="form-group text-center">
-        <?= Html::submitButton('Тіркелу / Регистрация', ['class' => 'btn btn-outline-success', 'name' => 'signup-button']) ?>
+        <?= Html::submitButton(Yii::t('app', 'Тіркелу'), ['class' => 'btn btn-outline-success', 'name' => 'signup-button']) ?>
     </div>
 
     <div class="text-end mt-2">
-        <?= Html::a(Yii::t('app', 'Артқа / Назад'), ['site/login'], ['class' => 'btn btn-outline-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Артқа'), ['site/login'], ['class' => 'btn btn-outline-primary']) ?>
+    </div>
+
+    <hr>
+    <div>
+        <?php
+        echo Html::tag('div', Html::a( Html::img(
+            Yii::$app->language == 'kz' ? '/images/kz.png' : '/images/ru.png',
+            ['style' => 'width: 40px; height: 40px; border: 1px solid black;', 'class' => 'rounded']
+        ), ['/site/language', 'view' => '/site/index']));
+        ?>
     </div>
 
     <?php ActiveForm::end(); ?>

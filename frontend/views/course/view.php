@@ -35,8 +35,20 @@ $this->title = $model->title;
                 'attribute' => 'id',
                 'headerOptions' => ['style' => 'width: 5%;'],
             ],
-            'month',
-            'duration',
+            [
+                'attribute' => 'month',
+                'label' => Yii::t('app', 'Ай'),
+                'value' => function ($model){
+                    return Yii::t('app', $model->month);
+                }
+            ],
+            [
+                'attribute' => 'duration',
+                'label' => Yii::t('app', 'Ұзақтығы'),
+                'value' => function ($model){
+                    return Yii::t('app', $model->duration);
+                }
+            ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
@@ -72,13 +84,20 @@ $this->title = $model->title;
             ],
             [
                 'attribute' => 'name',
+                'label' => 'Имя',
                 'format' => 'raw',
                 'value' => function ($model){
                     return Html::a($model->name, ['participant/view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
                 }
             ],
-            'telephone',
-            'organisation',
+            [
+                'attribute' => 'telephone',
+                'label' => 'Телефон'
+            ],
+            [
+                'attribute' => 'organisation',
+                'label' => 'Организация'
+            ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
@@ -113,14 +132,24 @@ $this->title = $model->title;
             ],
             [
                 'attribute' => 'title',
+                'label' => 'Название',
                 'format' => 'raw',
                 'value' => function ($model){
                     return Html::a('test_id_' . $model->id, ['test/view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
-                }
+                },
             ],
-            'lang',
-            'status',
-            'duration',
+            [
+                'attribute' => 'lang',
+                'label' => 'Язык'
+            ],
+            [
+                'attribute' => 'status',
+                'label' => 'Статус'
+            ],
+            [
+                'attribute' => 'duration',
+                'label' => 'Длительность'
+            ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
@@ -155,13 +184,20 @@ $this->title = $model->title;
             ],
             [
                 'attribute' => 'title',
+                'label' => 'Название',
                 'format' => 'raw',
                 'value' => function ($model){
                     return Html::a('survey_id_' . $model->id, ['test/view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
                 }
             ],
-            'lang',
-            'status',
+            [
+                'attribute' => 'lang',
+                'label' => 'Язык'
+            ],
+            [
+                'attribute' => 'status',
+                'label' => 'Статус'
+            ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
@@ -189,6 +225,7 @@ $this->title = $model->title;
             'class' => \yii\bootstrap5\LinkPager::class,
         ],
         'summary' => false,
+        'showHeader' => false,
         'columns' => [
             [
                 'class' => 'yii\grid\SerialColumn',

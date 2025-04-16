@@ -14,9 +14,9 @@ $this->title = Yii::t('app', 'Изменить ответ');
 
     <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
-    <?= $form->field($model, 'answer')->textarea(['rows' => 6]) ?>
+    <?= $form->field($model, 'answer')->textarea(['rows' => 6, 'placeholder' => 'Ответ'])->label(false) ?>
 
-    <?= $form->field($model, 'file')->fileInput() ?>
+    <?= $form->field($model, 'file')->fileInput()->label(false) ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('app', 'Изменить'), ['class' => 'btn btn-outline-primary']) ?>

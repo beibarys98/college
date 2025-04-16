@@ -32,16 +32,40 @@ $currentCategory = Yii::$app->request->get('category_id');
     <?php if (!Yii::$app->user->isGuest): ?>
         <div class="d-flex flex-column p-3 text-bg-dark overflow-auto" style="width: 300px;">
             <ul class="nav nav-pills flex-column mb-auto">
+                <?php if (Yii::$app->user->identity->ssn == 'admin'): ?>
                 <li>
                     <a href="<?= \yii\helpers\Url::to(['participant/index']) ?>"
                        class="nav-link <?= Yii::$app->controller->id == 'participant' && Yii::$app->controller->action->id == 'index' ? 'active' : 'text-white' ?>">
                         Участники
                     </a>
                 </li>
+                <?php else: ?>
+                <li>
+                    <div class="d-flex align-items-center w-100">
+                        <!-- Профиль link that stretches -->
+                        <a href="<?= \yii\helpers\Url::to(['site/index']) ?>"
+                           class="nav-link flex-grow-1 <?= Yii::$app->controller->id == 'site' && Yii::$app->controller->action->id == 'index' ? 'active' : 'text-white' ?>">
+                            <?= Yii::t('app', 'Жеке кабинет') ?>
+                        </a>
+
+                        <!-- Language switcher aligned to the end -->
+                        <?= Html::a(
+                            Html::img(
+                                Yii::$app->language == 'kz' ? '/images/kz.png' : '/images/ru.png',
+                                [
+                                    'style' => 'width: 36px; height: 36px; border: 1px solid black;',
+                                    'class' => 'rounded ms-2' // adds a little margin-left
+                                ]
+                            ),
+                            ['/site/language', 'view' => '/site/index']
+                        ) ?>
+                    </div>
+                </li>
+                <?php endif; ?>
                 <hr>
                 <li class="nav-item">
                     <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#qualificationMenu" aria-expanded="false">
-                        Повышение квалификации
+                        <?= Yii::t('app', 'Білім жетілдіру') ?>
                     </a>
                     <div class="collapse show" id="qualificationMenu">
                         <ul class="nav flex-column ms-3">
@@ -50,7 +74,7 @@ $currentCategory = Yii::$app->request->get('category_id');
 
                             foreach ($categories as $category) {
                                 $isActive = ($currentCategory == $category->id) ? 'active' : '';
-                                echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category_id' => $category->id]) . '" class="nav-link text-white ' . $isActive . '">' . $category->title_ru . '</a></li>';
+                                echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category_id' => $category->id]) . '" class="nav-link text-white ' . $isActive . '">' . (Yii::$app->language == 'kz' ? $category->title : $category->title_ru) . '</a></li>';
                             }
                             ?>
                         </ul>
@@ -59,7 +83,7 @@ $currentCategory = Yii::$app->request->get('category_id');
                 <hr>
                 <li class="nav-item">
                     <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#qualificationMenu2" aria-expanded="false">
-                        Сертификационный курс
+                        <?= Yii::t('app', 'Сертификаттау курсы') ?>
                     </a>
                     <div class="collapse show" id="qualificationMenu2">
                         <ul class="nav flex-column ms-3">
@@ -68,7 +92,7 @@ $currentCategory = Yii::$app->request->get('category_id');
 
                             foreach ($categories as $category) {
                                 $isActive = ($currentCategory == $category->id) ? 'active' : '';
-                                echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category_id' => $category->id]) . '" class="nav-link text-white ' . $isActive . '">' . $category->title_ru . '</a></li>';
+                                echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category_id' => $category->id]) . '" class="nav-link text-white ' . $isActive . '">' . (Yii::$app->language == 'kz' ? $category->title : $category->title_ru) . '</a></li>';
                             }
                             ?>
                         </ul>
@@ -80,10 +104,12 @@ $currentCategory = Yii::$app->request->get('category_id');
 
                 foreach ($categories as $category) {
                     $isActive = ($currentCategory == $category->id) ? 'active' : '';
-                    echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category_id' => $category->id]) . '" class="nav-link text-white ' . $isActive . '">' . $category->title_ru . '</a></li>';
+                    echo '<li><a href="' . \yii\helpers\Url::to(['course/index', 'category_id' => $category->id]) . '" class="nav-link text-white ' . $isActive . '">' . (Yii::$app->language == 'kz' ? $category->title : $category->title_ru) . '</a></li>';
                 }
                 ?>
                 <hr>
+
+                <?php if (Yii::$app->user->identity->ssn == 'admin'): ?>
                 <li>
                     <a href="<?= \yii\helpers\Url::to(['place/index']) ?>"
                        class="nav-link <?= (Yii::$app->controller->id == 'place'
@@ -93,12 +119,17 @@ $currentCategory = Yii::$app->request->get('category_id');
                     </a>
                 </li>
                 <hr>
+                <?php endif; ?>
             </ul>
             <div class="mt-auto">
                 <?php if (!Yii::$app->user->isGuest): ?>
+                    <?php
+                    $identity = Yii::$app->user->identity;
+                    $username = $identity->ssn ?? $identity->participant_id;
+                    ?>
                     <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'd-flex'])
                     . Html::submitButton(
-                        Yii::t('app', 'Выйти ({username})', ['username' => Yii::$app->user->identity->username]),
+                        Yii::t('app', 'Выйти ({username})', ['username' => $username]),
                         ['class' => 'btn btn-link logout text-decoration-none', 'style' => 'color: red;']
                     )
                     . Html::endForm();

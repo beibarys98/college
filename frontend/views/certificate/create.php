@@ -15,7 +15,7 @@ $this->title = Yii::t('app', 'Добавить сертификат');
     <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
     <!-- File input -->
-    <?= $form->field($model, 'file')->fileInput() ?>
+    <?= $form->field($model, 'file')->fileInput()->label(false) ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('app', 'Добавить'), ['class' => 'btn btn-outline-primary']) ?>

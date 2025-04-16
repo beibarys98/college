@@ -80,7 +80,8 @@ class ParticipantController extends Controller
                         $participant->save(false);
 
                         $user = new User();
-                        $user->username = $participant->id;
+                        $user->participant_id = $participant->id;
+                        $user->ssn = null;
                         $user->password = Yii::$app->security->generatePasswordHash('password');
                         $user->generateAuthKey();
                         $user->save(false);

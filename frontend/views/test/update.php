@@ -14,10 +14,10 @@ $this->title = Yii::t('app', 'Изменить тест');
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'lang')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'lang')->textInput(['maxlength' => true, 'placeholder' => 'Язык'])->label(false) ?>
 
     <?php if($model->type == 'test'): ?>
-    <?= $form->field($model, 'duration')->input('time', ['step' => 1]) ?>
+    <?= $form->field($model, 'duration')->input('time', ['step' => 1])->label(false) ?>
     <?php endif; ?>
 
     <div class="form-group">

@@ -14,11 +14,11 @@ $this->title = Yii::t('app', 'Изменить участника');
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => 'Имя'])->label(false) ?>
 
-    <?= $form->field($model, 'telephone')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'telephone')->textInput(['maxlength' => true, 'placeholder' => 'Телефон'])->label(false) ?>
 
-    <?= $form->field($model, 'organisation')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'organisation')->textInput(['maxlength' => true, 'placeholder' => 'Организация'])->label(false) ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('app', 'Изменить'), ['class' => 'btn btn-outline-primary']) ?>

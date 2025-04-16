@@ -21,7 +21,7 @@ $this->title = Yii::$app->name;
 
     <?= $form->field($model, 'username')->textInput([
         'autofocus' => true,
-        'placeholder' => Yii::t('app', 'ID'),
+        'placeholder' => Yii::t('app', 'ID немесе ЖСН'),
         'id' => 'username-input'
     ])->label(false) ?>
 
@@ -32,11 +32,21 @@ $this->title = Yii::$app->name;
     </div>
 
     <div class="form-group text-center mt-3">
-        <?= Html::submitButton(Yii::t('app', 'Кіру / Войти'), ['class' => 'btn btn-outline-primary', 'name' => 'login-button']) ?>
+        <?= Html::submitButton(Yii::t('app', 'Кіру'), ['class' => 'btn btn-outline-primary', 'name' => 'login-button']) ?>
     </div>
 
     <div class="text-end mt-2">
-        <?= Html::a(Yii::t('app', 'Тіркелу / Регистрация'), ['site/signup'], ['class' => 'btn btn-outline-success']) ?>
+        <?= Html::a(Yii::t('app', 'Тіркелу'), ['site/signup'], ['class' => 'btn btn-outline-success']) ?>
+    </div>
+
+    <hr>
+    <div>
+        <?php
+        echo Html::tag('div', Html::a( Html::img(
+            Yii::$app->language == 'kz' ? '/images/kz.png' : '/images/ru.png',
+            ['style' => 'width: 40px; height: 40px; border: 1px solid black;', 'class' => 'rounded']
+        ), ['/site/language', 'view' => '/site/index']));
+        ?>
     </div>
 
     <?php ActiveForm::end(); ?>

@@ -11,7 +11,7 @@ use yii\web\IdentityInterface;
  * User model
  *
  * @property integer $id
- * @property string $username
+ * @property string $ssn
  * @property string $password_hash
  * @property string $auth_key
  * @property string $password write-only password
@@ -33,9 +33,9 @@ class User extends ActiveRecord implements IdentityInterface
         throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
     }
 
-    public static function findByUsername($username)
+    public static function findByUsername($ssn)
     {
-        return static::findOne(['username' => $username]);
+        return static::findOne(['ssn' => $ssn]);
     }
 
     public static function findByPasswordResetToken($token)

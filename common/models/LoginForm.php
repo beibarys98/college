@@ -16,7 +16,7 @@ class LoginForm extends Model
     public function rules()
     {
         return [
-            [['username'], 'required'],
+            [['username'], 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
             [['password'], 'safe'],
             ['rememberMe', 'boolean'],
         ];
@@ -30,7 +30,7 @@ class LoginForm extends Model
         // Check if user exists
         if ($user) {
             // If username is 'admin', validate the password
-            if ($user->username === 'admin') {
+            if ($user->ssn === 'admin') {
                 if (empty($this->password)) {
                     Yii::$app->session->setFlash('error', 'Неверный пароль!');
                     return false;  // Stop login if password is empty
@@ -52,7 +52,13 @@ class LoginForm extends Model
     protected function getUser()
     {
         if ($this->_user === null) {
-            $this->_user = User::findByUsername($this->username);
+            // Try to find by SSN first
+            $this->_user = User::find()->andWhere(['ssn' => $this->username])->one();
+
+            // If no user found and input is numeric, try participant_id
+            if ($this->_user === null && is_numeric($this->username)) {
+                $this->_user = User::find()->andWhere(['participant_id' => $this->username])->one();
+            }
         }
 
         return $this->_user;

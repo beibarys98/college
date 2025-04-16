@@ -22,15 +22,15 @@ $this->title = Yii::t('app', 'Добавить ' . $title);
     <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
     <!-- File input -->
-    <?= $form->field($model, 'file')->fileInput() ?>
+    <?= $form->field($model, 'file')->fileInput()->label(false) ?>
 
     <!-- Lang input -->
-    <?= $form->field($model, 'lang')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'lang')->textInput(['maxlength' => true, 'placeholder' => 'Язык'])->label(false) ?>
 
     <?php if($type == 'test'): ?>
 
     <!-- Duration as time input -->
-    <?= $form->field($model, 'duration')->input('time', ['step' => 1]) ?> <!-- step=1 enables HH:MM:SS -->
+    <?= $form->field($model, 'duration')->input('time', ['step' => 1])->label(false) ?> <!-- step=1 enables HH:MM:SS -->
 
     <?php endif; ?>
 

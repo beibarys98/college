@@ -19,34 +19,58 @@ $this->title = $model->type == 'test' ? 'test_id_' . $model->id : 'survey_id_' .
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+    <?php
+    $columns = [];
+
+    $columns[] = [
+        'attribute' => 'id',
+        'headerOptions' => ['style' => 'width: 5%;'],
+    ];
+
+    $columns[] = [
+        'attribute' => 'course_id',
+        'label' => 'Цикл',
+        'format' => 'raw',
+        'value' => function ($model) {
+            return Html::a(
+                $model->course->title,
+                ['course/view', 'id' => $model->course->id, 'category_id' => $model->course->category_id]
+            );
+        }
+    ];
+
+    $columns[] = [
+        'attribute' => 'lang',
+        'label' => 'Язык',
+    ];
+
+    $columns[] = [
+        'attribute' => 'status',
+        'label' => 'Статус',
+    ];
+
+    if($model->type == 'test'){
+        $columns[] = [
+            'attribute' => 'duration',
+            'label' => 'Длительность',
+        ];
+    }
+
+    $columns[] = [
+        'headerOptions' => ['style' => 'width: 5%;'],
+        'class' => ActionColumn::class,
+        'template' => '{update}',
+        'urlCreator' => function ($action, $model, $key, $index, $column) {
+            return Url::toRoute([$action, 'id' => $model->id, 'category_id' => $model->course->category_id]);
+        }
+    ];
+    ?>
+
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'summary' => false,
         'tableOptions' => ['class' => 'table table-striped'],
-        'columns' => [
-            [
-                'attribute' => 'id',
-                'headerOptions' => ['style' => 'width: 5%;'],
-            ],
-            [
-                'attribute' => 'course_id',
-                'format' => 'raw',
-                'value' => function ($model) {
-                    return Html::a($model->course->title, ['course/view', 'id' => $model->course->id, 'category_id' => $model->course->category_id]);
-                }
-            ],
-            'lang',
-            'status',
-            'duration',
-            [
-                'headerOptions' => ['style' => 'width: 5%;'],
-                'class' => ActionColumn::className(),
-                'template' => '{update}',
-                'urlCreator' => function ($action, Test $model, $key, $index, $column){
-                    return Url::toRoute([$action, 'id' => $model->id, 'category_id' => $model->course->category_id]); // Default for other actions
-                }
-            ]
-        ],
+        'columns' => $columns,
     ]); ?>
 
     <hr>
@@ -82,7 +106,7 @@ $this->title = $model->type == 'test' ? 'test_id_' . $model->id : 'survey_id_' .
                     [
                         'class' => 'btn btn-sm btn-outline-danger',
                         'data' => [
-                            'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+                            'confirm' => Yii::t('app', 'Вы уверены?'),
                             'method' => 'post',
                         ],
                     ]) . ' ';
@@ -105,7 +129,7 @@ $this->title = $model->type == 'test' ? 'test_id_' . $model->id : 'survey_id_' .
                             [
                                 'class' => 'btn btn-sm btn-outline-danger',
                                 'data' => [
-                                    'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+                                    'confirm' => Yii::t('app', 'Вы уверены?'),
                                     'method' => 'post',
                                 ],
                             ]) . ' ';
