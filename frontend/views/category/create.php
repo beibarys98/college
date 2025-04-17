@@ -14,15 +14,15 @@ $this->title = Yii::t('app', 'Добавить категорию');
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'title')->textInput(['maxlength' => true, 'placeholder' => 'Атауы (kz)'])->label(false) ?>
 
-    <?= $form->field($model, 'title_ru')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'title_ru')->textInput(['maxlength' => true, 'placeholder' => 'Название (ru)'])->label(false) ?>
 
     <?= $form->field($model, 'type')->dropDownList([
         'pov' => 'Повышение квалификации',
         'cert' => 'Сертификационный курс',
         'sem' => 'Семинары'
-    ], ['prompt' => 'Выберите тип']) ?>
+    ], ['prompt' => 'Тип'])->label(false) ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('app', 'Добавить'), ['class' => 'btn btn-outline-primary']) ?>

@@ -14,7 +14,7 @@ $this->title = Yii::t('app', 'Добавить место');
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'score')->textInput() ?>
+    <?= $form->field($model, 'score')->textInput(['placeholder' => 'Баллы'])->label(false) ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('app', 'Добавить'), ['class' => 'btn btn-outline-primary']) ?>

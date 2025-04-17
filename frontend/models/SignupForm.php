@@ -18,23 +18,23 @@ class SignupForm extends Model
     {
         return [
             ['username', 'trim'],
-            ['username', 'required', 'message' => 'Толтырыңыз! / Заполните!'],
+            ['username', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
             ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот ИИН уже используется.'],
             ['username', 'match', 'pattern' => '/^\d{12}$/', 'message' => 'ИИН должен содержать ровно 12 цифр.'],
 
             ['name', 'trim'],
-            ['name', 'required', 'message' => 'Толтырыңыз!'],
+            ['name', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
             ['name', 'match', 'pattern' => '/^[А-Яа-яЁё]+(?:\s+[А-Яа-яЁё]+)+$/u', 'message' => 'Введите имя и фамилию на кириллице.'],
 
             // Telephone rules
             ['telephone', 'trim'],
-            ['telephone', 'required', 'message' => 'Толтырыңыз!'],
+            ['telephone', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
             ['telephone', 'match', 'pattern' => '/^\+?[0-9\-()\s]+$/', 'message' => 'Enter a valid telephone number.'],
             ['telephone', 'string', 'min' => 7, 'max' => 20],
 
             // Organisation rules
             ['organisation', 'trim'],
-            ['organisation', 'required', 'message' => 'Толтырыңыз!'],
+            ['organisation', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
             ['organisation', 'string', 'max' => 255],
         ];
     }

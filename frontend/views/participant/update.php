@@ -1,6 +1,9 @@
 <?php
 
+use common\models\Course;
+use kartik\select2\Select2;
 use yii\bootstrap5\ActiveForm;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
 /** @var yii\web\View $this */
@@ -13,6 +16,16 @@ $this->title = Yii::t('app', 'Изменить участника');
     <h1><?= Html::encode($this->title) ?></h1>
 
     <?php $form = ActiveForm::begin(); ?>
+
+    <?= $form->field($model, 'course_id')->widget(Select2::classname(), [
+        'data' => ArrayHelper::map(Course::find()->all(), 'id', 'title'),
+        'options' => [
+            'placeholder' => 'Выберите цикл',
+        ],
+        'pluginOptions' => [
+            'allowClear' => true,
+        ],
+    ])->label(false) ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => 'Имя'])->label(false) ?>
 

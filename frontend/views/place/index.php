@@ -37,7 +37,7 @@ $this->title = Yii::t('app', 'Места');
             ],
             [
                 'attribute' => 'score',
-                'label' => 'Score [>=]'
+                'label' => 'Баллы [>=]'
             ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
@@ -72,13 +72,20 @@ $this->title = Yii::t('app', 'Места');
             ],
             [
                 'attribute' => 'title_ru',
+                'label' => 'Название',
                 'format' => 'raw',
                 'value' => function ($model) {
                     return Html::a($model->title_ru, ['category/update', 'id' => $model->id]);
                 }
             ],
-            'title',
-            'type',
+            [
+                'attribute' => 'title',
+                'label' => 'Атауы'
+            ],
+            [
+                'attribute' => 'type',
+                'label' => 'Тип'
+            ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),

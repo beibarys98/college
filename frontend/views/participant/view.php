@@ -34,7 +34,7 @@ $this->title = $model->name;
                 'label' => 'Цикл',
                 'format' => 'raw',
                 'value' => function ($model) {
-                    return Html::a($model->course->title, ['course/view', 'id' => $model->course_id, 'category_id' => $model->course->category_id]);
+                    return $model->course ? Html::a($model->course->title, ['/course/view', 'id' => $model->course_id, 'category_id' => $model->course->category_id]) : '';
                 },
             ],
             [
@@ -50,7 +50,7 @@ $this->title = $model->name;
                 'class' => ActionColumn::className(),
                 'template' => '{update}',
                 'urlCreator' => function ($action, Participant $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id, 'category_id' => $model->course->category_id]);
+                    return Url::toRoute([$action, 'id' => $model->id, 'category_id' => $model->course ? $model->course->category_id : '']);
                 }
             ],
         ],

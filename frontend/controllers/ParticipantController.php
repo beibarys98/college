@@ -37,6 +37,8 @@ class ParticipantController extends Controller
         $searchModel = new ParticipantSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
+        $dataProvider->pagination->pageSize = 100;
+
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -94,8 +96,22 @@ class ParticipantController extends Controller
 
                     return $this->redirect(['course/view', 'id' => $course_id, 'category_id' => $category_id]);
                 }
-            } elseif ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+            } elseif ($model->load($this->request->post())) {
+
+                $model->course_id = $course_id;
+                $model->save(false);
+
+                $user = new User();
+                $user->participant_id = $model->id;
+                $user->ssn = null;
+                $user->password = Yii::$app->security->generatePasswordHash('password');
+                $user->generateAuthKey();
+                $user->save(false);
+
+                $model = Course::findOne($course_id);
+                $category_id = $model->category_id;
+
+                return $this->redirect(['course/view', 'id' => $course_id, 'category_id' => $category_id]);
             }
         } else {
             $model->loadDefaultValues();
@@ -121,7 +137,7 @@ class ParticipantController extends Controller
 
     public function actionDelete($id, $course_id = null)
     {
-        $user = User::findOne(['username' => $id]);
+        $user = User::findOne(['participant_id' => $id]);
         $user->delete();
         $this->findModel($id)->delete();
 

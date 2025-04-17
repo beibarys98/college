@@ -30,7 +30,7 @@ class Participant extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['file'], 'file', 'extensions' => 'xls, xlsx', 'skipOnEmpty' => false],
+            [['file'], 'file', 'extensions' => 'xls, xlsx', 'skipOnEmpty' => true],
 
             [['name'], 'required'],
             [['name', 'organisation'], 'string', 'max' => 255],

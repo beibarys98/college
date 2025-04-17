@@ -33,17 +33,28 @@ $this->title = Yii::t('app', 'Участники');
             ],
             [
                 'attribute' => 'course',
-                'value' => 'course.title',
+                'label' => 'Цикл',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    return $model->course ? Html::a($model->course->title, ['/course/view', 'id' => $model->course_id, 'category_id' => $model->course->category_id]) : '';
+                },
             ],
             [
                 'attribute' => 'name',
+                'label' => 'Имя',
                 'format' => 'raw',
                 'value' => function ($model) {
                     return Html::a($model->name, ['participant/view', 'id' => $model->id]);
                 }
             ],
-            'telephone',
-            'organisation',
+            [
+                'attribute' => 'telephone',
+                'label' => 'Телефон'
+            ],
+            [
+                'attribute' => 'organisation',
+                'label' => 'Организация'
+            ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
