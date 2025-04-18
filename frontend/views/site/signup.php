@@ -19,7 +19,7 @@ $this->title = 'Signup';
 
     <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
 
-    <?= $form->field($model, 'username')->textInput(['autofocus' => true, 'placeholder' => Yii::t('app', 'ЖСН')])->label(false) ?>
+    <?= $form->field($model, 'ssn')->textInput(['autofocus' => true, 'placeholder' => Yii::t('app', 'ЖСН')])->label(false) ?>
 
     <?= $form->field($model, 'name')->textInput(['placeholder' => Yii::t('app', 'ТАЖ')])->label(false) ?>
 

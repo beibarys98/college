@@ -48,12 +48,25 @@ $this->title = Yii::t('app', 'Участники');
                 }
             ],
             [
+                'attribute' => 'ssn',
+                'label' => 'ИИН',
+                'value' => function ($model) {
+                    return $model->user->ssn ?: '';
+                }
+            ],
+            [
                 'attribute' => 'telephone',
-                'label' => 'Телефон'
+                'label' => 'Телефон',
+                'value' => function ($model) {
+                    return $model->telephone ?: '';
+                }
             ],
             [
                 'attribute' => 'organisation',
-                'label' => 'Организация'
+                'label' => 'Организация',
+                'value' => function ($model) {
+                    return $model->organisation ?: '';
+                }
             ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],

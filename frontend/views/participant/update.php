@@ -8,6 +8,7 @@ use yii\helpers\Html;
 
 /** @var yii\web\View $this */
 /** @var common\models\Participant $model */
+/** @var $model2 */
 
 $this->title = Yii::t('app', 'Изменить участника');
 ?>
@@ -28,6 +29,8 @@ $this->title = Yii::t('app', 'Изменить участника');
     ])->label(false) ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => 'Имя'])->label(false) ?>
+
+    <?= $form->field($model2, 'ssn')->textInput(['placeholder' => 'ИИН'])->label(false) ?>
 
     <?= $form->field($model, 'telephone')->textInput(['maxlength' => true, 'placeholder' => 'Телефон'])->label(false) ?>
 

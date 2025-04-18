@@ -18,6 +18,15 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
+    public function rules()
+    {
+        return [
+            ['ssn', 'trim'],
+            ['ssn', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот ИИН уже используется.'],
+            ['ssn', 'match', 'pattern' => '/^\d{12}$/', 'message' => Yii::t('app', 'ЖСН 12 сан болуы тиіс!')],
+        ];
+    }
+
     public static function tableName()
     {
         return '{{%user}}';

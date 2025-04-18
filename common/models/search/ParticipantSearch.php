@@ -12,6 +12,7 @@ use common\models\Participant;
 class ParticipantSearch extends Participant
 {
     public $course;
+    public $ssn;
 
     /**
      * {@inheritdoc}
@@ -20,7 +21,7 @@ class ParticipantSearch extends Participant
     {
         return [
             [['id', 'course_id'], 'integer'],
-            [['name', 'telephone', 'organisation', 'course'], 'safe'],
+            [['name', 'telephone', 'organisation', 'course', 'ssn'], 'safe'],
         ];
     }
 
@@ -43,7 +44,9 @@ class ParticipantSearch extends Participant
      */
     public function search($params, $formName = null)
     {
-        $query = Participant::find()->joinWith('course');
+        $query = Participant::find()
+            ->joinWith('course')
+            ->joinWith('user');
 
         // add conditions that should always apply here
         if (!empty($params['ParticipantSearch']['course_id'])) {
@@ -61,6 +64,10 @@ class ParticipantSearch extends Participant
                     'course' => [
                         'asc' => ['course.title' => SORT_ASC],
                         'desc' => ['course.title' => SORT_DESC],
+                    ],
+                    'ssn' => [
+                        'asc' => ['user.ssn' => SORT_ASC],
+                        'desc' => ['user.ssn' => SORT_DESC],
                     ],
                 ],
             ],
@@ -82,7 +89,8 @@ class ParticipantSearch extends Participant
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'telephone', $this->telephone])
             ->andFilterWhere(['like', 'organisation', $this->organisation])
-            ->andFilterWhere(['like', 'course.title', $this->course]);;
+            ->andFilterWhere(['like', 'course.title', $this->course])
+            ->andFilterWhere(['like', 'user.ssn', $this->ssn]);
 
         return $dataProvider;
     }

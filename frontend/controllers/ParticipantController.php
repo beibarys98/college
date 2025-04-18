@@ -47,9 +47,9 @@ class ParticipantController extends Controller
 
     public function actionView($id)
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Participant::find()->andWhere(['id' => $id]),
-        ]);
+        $searchModel = new ParticipantSearch();
+        $searchModel->id = $id; // Pre-filter by participant ID
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('view', [
             'model' => $this->findModel($id),
@@ -96,22 +96,6 @@ class ParticipantController extends Controller
 
                     return $this->redirect(['course/view', 'id' => $course_id, 'category_id' => $category_id]);
                 }
-            } elseif ($model->load($this->request->post())) {
-
-                $model->course_id = $course_id;
-                $model->save(false);
-
-                $user = new User();
-                $user->participant_id = $model->id;
-                $user->ssn = null;
-                $user->password = Yii::$app->security->generatePasswordHash('password');
-                $user->generateAuthKey();
-                $user->save(false);
-
-                $model = Course::findOne($course_id);
-                $category_id = $model->category_id;
-
-                return $this->redirect(['course/view', 'id' => $course_id, 'category_id' => $category_id]);
             }
         } else {
             $model->loadDefaultValues();
@@ -122,16 +106,51 @@ class ParticipantController extends Controller
         ]);
     }
 
+    public function actionCreate2($course_id){
+        $model = new Participant();
+        $model2 = new User();
+
+        if ($this->request->isPost && $model->load($this->request->post()) && $model2->load($this->request->post())) {
+            $model->course_id = $course_id;
+            $model->save(false);
+
+            $model2->participant_id = $model->id;
+            $model2->password = Yii::$app->security->generatePasswordHash('password');
+            $model2->generateAuthKey();
+            if ($model2->validate()) {
+                $model2->save(false);
+            }
+
+            $model = Course::findOne($course_id);
+            $category_id = $model->category_id;
+
+            return $this->redirect(['course/view', 'id' => $course_id, 'category_id' => $category_id]);
+        }
+
+        return $this->render('create2', [
+            'model' => $model,
+            'model2' => $model2,
+        ]);
+    }
+
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $model2 = User::findOne(['participant_id' => $id]);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save(false)) {
+        if ($this->request->isPost && $model->load($this->request->post()) && $model2->load($this->request->post())) {
+            $model->save();
+            if($model2->validate()){
+                $model2->save();
+            }else{
+                return $this->redirect(['update', 'id' => $model->id, 'category_id' => $model->course->category_id]);
+            }
             return $this->redirect(['view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
         }
 
         return $this->render('update', [
             'model' => $model,
+            'model2' => $model2,
         ]);
     }
 

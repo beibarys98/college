@@ -2,7 +2,8 @@
 
 namespace frontend\controllers;
 
-use common\models\User;
+use common\models\Participant;
+use common\models\search\ParticipantSearch;
 use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -63,7 +64,14 @@ class SiteController extends Controller
             Yii::$app->session->set('language', 'ru');
             return $this->redirect('/participant/index');
         }else{
-            return $this->render('index');
+            $searchModel = new ParticipantSearch();
+            $searchModel->id = Yii::$app->user->identity->participant_id;
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+            $model = Participant::find()->andWhere(['id' => Yii::$app->user->identity->participant_id])->one();
+            return $this->render('index', [
+                'model' => $model,
+                'dataProvider' => $dataProvider,
+            ]);
         }
     }
 

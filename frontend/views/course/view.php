@@ -67,7 +67,8 @@ $this->title = $model->title;
 
     <h1>Участники</h1>
     <p>
-        <?= Html::a(Yii::t('app', 'Добавить'), ['participant/create', 'course_id' => $model->id, 'category_id' => $model->category_id], ['class' => 'btn btn-outline-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Добавить'), ['participant/create2', 'course_id' => $model->id, 'category_id' => $model->category_id], ['class' => 'btn btn-outline-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Добавить из excel'), ['participant/create', 'course_id' => $model->id, 'category_id' => $model->category_id], ['class' => 'btn btn-outline-primary']) ?>
     </p>
 
     <?= GridView::widget([
@@ -91,12 +92,25 @@ $this->title = $model->title;
                 }
             ],
             [
+                'attribute' => 'ssn',
+                'label' => 'ИИН',
+                'value' => function ($model) {
+                    return $model->user->ssn ?: '';
+                }
+            ],
+            [
                 'attribute' => 'telephone',
-                'label' => 'Телефон'
+                'label' => 'Телефон',
+                'value' => function ($model) {
+                    return $model->telephone ?: '';
+                }
             ],
             [
                 'attribute' => 'organisation',
-                'label' => 'Организация'
+                'label' => 'Организация',
+                'value' => function ($model) {
+                    return $model->organisation ?: '';
+                }
             ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],

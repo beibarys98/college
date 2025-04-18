@@ -15,6 +15,7 @@ use Yii;
 class Participant extends \yii\db\ActiveRecord
 {
     public $file;
+    public $ssn;
 
     /**
      * {@inheritdoc}
@@ -31,6 +32,11 @@ class Participant extends \yii\db\ActiveRecord
     {
         return [
             [['file'], 'file', 'extensions' => 'xls, xlsx', 'skipOnEmpty' => true],
+
+            ['ssn', 'trim'],
+            ['ssn', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
+            ['ssn', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот ИИН уже используется.'],
+            ['ssn', 'match', 'pattern' => '/^\d{12}$/', 'message' => Yii::t('app', 'ЖСН 12 сан болуы тиіс!')],
 
             [['name'], 'required'],
             [['name', 'organisation'], 'string', 'max' => 255],
@@ -57,6 +63,11 @@ class Participant extends \yii\db\ActiveRecord
     public function getCourse()
     {
         return $this->hasOne(Course::class, ['id' => 'course_id']);
+    }
+
+    public function getUser()
+    {
+        return $this->hasOne(User::class, ['participant_id' => 'id']);
     }
 
     /**
