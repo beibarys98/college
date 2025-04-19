@@ -39,7 +39,7 @@ $this->title = $model->name;
             ],
             [
                 'attribute' => 'ssn',
-                'label' => 'ИИН',
+                'label' => Yii::t('app', 'ЖСН'),
                 'value' => function ($model) {
                     return $model->user->ssn ?: '';
                 }
@@ -53,7 +53,7 @@ $this->title = $model->name;
             ],
             [
                 'attribute' => 'organisation',
-                'label' => 'Организация',
+                'label' => Yii::t('app', 'Мекеме'),
                 'value' => function ($model) {
                     return $model->organisation ?: '';
                 }

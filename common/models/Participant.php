@@ -15,7 +15,6 @@ use Yii;
 class Participant extends \yii\db\ActiveRecord
 {
     public $file;
-    public $ssn;
 
     /**
      * {@inheritdoc}
@@ -33,14 +32,21 @@ class Participant extends \yii\db\ActiveRecord
         return [
             [['file'], 'file', 'extensions' => 'xls, xlsx', 'skipOnEmpty' => true],
 
-            ['ssn', 'trim'],
-            ['ssn', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
-            ['ssn', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот ИИН уже используется.'],
-            ['ssn', 'match', 'pattern' => '/^\d{12}$/', 'message' => Yii::t('app', 'ЖСН 12 сан болуы тиіс!')],
+            ['name', 'trim'],
+            ['name', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
+            ['name', 'match', 'pattern' => '/^[А-Яа-яЁё]+(?:\s+[А-Яа-яЁё]+)+$/u', 'message' => Yii::t('app', 'Кемінде 2 сөз және кириллица болуы тиіс!')],
 
-            [['name'], 'required'],
-            [['name', 'organisation'], 'string', 'max' => 255],
-            [['telephone'], 'string', 'max' => 20],
+            // Telephone rules
+            ['telephone', 'trim'],
+            ['telephone', 'match', 'pattern' => '/^\+?[0-9\-()\s]+$/', 'message' => Yii::t('app', 'Телефон номерін енгізіңіз!')],
+            ['telephone', 'string', 'min' => 11, 'max' => 12,
+                'tooShort' => Yii::t('app', 'Телефон номерін енгізіңіз!'),
+                'tooLong' => Yii::t('app', 'Телефон номерін енгізіңіз!')
+            ],
+
+            // Organisation rules
+            ['organisation', 'trim'],
+            ['organisation', 'string', 'max' => 255],
 
             [['course_id'], 'integer'],
             [['course_id'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['course_id' => 'id']],

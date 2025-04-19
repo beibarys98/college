@@ -18,6 +18,7 @@ $this->title = Yii::t('app', 'Изменить участника');
 
     <?php $form = ActiveForm::begin(); ?>
 
+    <?php if(Yii::$app->user->identity->ssn == 'admin'): ?>
     <?= $form->field($model, 'course_id')->widget(Select2::classname(), [
         'data' => ArrayHelper::map(Course::find()->all(), 'id', 'title'),
         'options' => [
@@ -27,6 +28,7 @@ $this->title = Yii::t('app', 'Изменить участника');
             'allowClear' => true,
         ],
     ])->label(false) ?>
+    <?php endif; ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => 'Имя'])->label(false) ?>
 

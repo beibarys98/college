@@ -5,11 +5,9 @@ namespace frontend\controllers;
 use common\models\Course;
 use common\models\Participant;
 use common\models\search\ParticipantSearch;
-use common\models\Seminar;
 use common\models\User;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yii;
-use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -112,13 +110,18 @@ class ParticipantController extends Controller
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model2->load($this->request->post())) {
             $model->course_id = $course_id;
-            $model->save(false);
 
             $model2->participant_id = $model->id;
             $model2->password = Yii::$app->security->generatePasswordHash('password');
             $model2->generateAuthKey();
-            if ($model2->validate()) {
+            if ($model->validate() && $model2->validate()) {
+                $model->save(false);
                 $model2->save(false);
+            }else{
+                return $this->render('create2', [
+                    'model' => $model,
+                    'model2' => $model2,
+                ]);
             }
 
             $model = Course::findOne($course_id);
@@ -139,13 +142,20 @@ class ParticipantController extends Controller
         $model2 = User::findOne(['participant_id' => $id]);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model2->load($this->request->post())) {
-            $model->save();
-            if($model2->validate()){
-                $model2->save();
+            if ($model->validate() && $model2->validate()) {
+                $model->save(false);
+                $model2->save(false);
             }else{
-                return $this->redirect(['update', 'id' => $model->id, 'category_id' => $model->course->category_id]);
+                return $this->render('update', [
+                    'model' => $model,
+                    'model2' => $model2,
+                ]);
             }
-            return $this->redirect(['view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
+            if(Yii::$app->user->identity->ssn == 'admin'){
+                return $this->redirect(['view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
+            }else{
+                return $this->redirect(['site/index']);
+            }
         }
 
         return $this->render('update', [

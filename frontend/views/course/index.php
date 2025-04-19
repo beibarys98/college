@@ -39,11 +39,17 @@ $this->title = (Yii::$app->language == 'kz' ? $category->title : $category->titl
         'label' => Yii::t('app', 'Атауы'),
         'format' => 'raw',
         'value' => function ($model){
-            return Html::a($model->title, [
-                'view',
-                'id' => $model->id,
-                'category_id' => $model->category_id,
-            ]);
+            return Yii::$app->user->identity->ssn == 'admin'
+                ? Html::a($model->title, [
+                    'view',
+                    'id' => $model->id,
+                    'category_id' => $model->category_id,
+                ])
+                : Html::a($model->title, [
+                    'view2',
+                    'id' => $model->id,
+                    'category_id' => $model->category_id,
+                ]);
         },
     ];
 

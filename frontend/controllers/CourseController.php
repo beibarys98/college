@@ -5,6 +5,8 @@ namespace frontend\controllers;
 use common\models\Category;
 use common\models\Certificate;
 use common\models\Course;
+use common\models\File;
+use common\models\Participant;
 use common\models\search\CourseSearch;
 use common\models\search\ParticipantSearch;
 use common\models\Test;
@@ -80,6 +82,60 @@ class CourseController extends Controller
             'surveyDP' => $surveyDP,
         ]);
     }
+
+    public function actionView2($id)
+    {
+        $dataProvider = new ActiveDataProvider([
+            'query' => Course::find()->andWhere(['id' => $id]),
+        ]);
+
+        $testsDP = new ActiveDataProvider([
+            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'test', 'lang' => Yii::$app->language, 'status' => 'public']),
+        ]);
+
+        $surveyDP = new ActiveDataProvider([
+            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'survey', 'lang' => Yii::$app->language, 'status' => 'public']),
+        ]);
+
+        $participant = Participant::findOne(['id' => Yii::$app->user->identity->participant_id]);
+
+        return $this->render('view2', [
+            'model' => $this->findModel($id),
+            'dataProvider' => $dataProvider,
+            'testsDP' => $testsDP,
+            'surveyDP' => $surveyDP,
+            'participant' => $participant,
+        ]);
+    }
+
+    public function actionEnroll($id)
+    {
+        $participant = Participant::findOne(['id' => Yii::$app->user->identity->participant_id]);
+
+        $fileCount = File::find()
+            ->andWhere(['participant_id' => $participant->id, 'course_id' => $id, 'type' => 'doc'])
+            ->count();
+
+        if($fileCount == 0){
+            for ($i = 1; $i <= 6; $i++) {
+                $file = new File();
+                $file->participant_id = $participant->id;
+                $file->course_id = $id;
+                $file->file_path = ''; // or a default/placeholder value
+                $file->type = 'doc'; // or change depending on logic
+                $file->save(false); // use true to enable validation
+            }
+        }
+
+        $files = new ActiveDataProvider([
+            'query' => File::find()->andWhere(['course_id' => $id, 'participant_id' => $participant->id, 'type' => 'doc']),
+        ]);
+
+        return $this->render('enroll', [
+            'files' => $files,
+        ]);
+    }
+
 
     public function actionCreate($category_id)
     {
