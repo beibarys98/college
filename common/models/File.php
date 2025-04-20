@@ -18,7 +18,7 @@ use Yii;
  */
 class File extends \yii\db\ActiveRecord
 {
-
+    public $file;
 
     /**
      * {@inheritdoc}
@@ -34,9 +34,11 @@ class File extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            ['file', 'file', 'skipOnEmpty' => false, 'extensions' => 'pdf'],
+
             [['participant_id', 'course_id', 'file_path', 'type'], 'required'],
             [['participant_id', 'course_id'], 'integer'],
-            [['file_path'], 'string', 'max' => 255],
+            [['file_path', 'title', 'title_ru'], 'string', 'max' => 255],
             [['type'], 'string', 'max' => 50],
             [['participant_id'], 'exist', 'skipOnError' => true, 'targetClass' => Participant::class, 'targetAttribute' => ['participant_id' => 'id']],
             [['course_id'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['course_id' => 'id']],

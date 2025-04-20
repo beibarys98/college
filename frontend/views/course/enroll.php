@@ -1,13 +1,15 @@
 <?php
 
-use common\models\File;
 use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\grid\ActionColumn;
 use yii\grid\GridView;
-use yii\widgets\Pjax;
 
 /** @var yii\web\View $this */
+/** @var $files */
+/** @var $type */
+/** @var $id */
+
+$category_id = \common\models\Course::findOne($id)->category_id;
+$participant = \common\models\Participant::find()->andWhere(['id' => Yii::$app->user->identity->participant_id])->one();
 
 $this->title = 'Запись';
 ?>
@@ -15,31 +17,99 @@ $this->title = 'Запись';
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?php if(Yii::$app->user->identity->ssn === 'admin'): ?>
-    <p>
-        <?= Html::a(Yii::t('app', 'Добавить'),
-            ['create', 'category_id' => $category->id],
-            ['class' => 'btn btn-outline-primary']) ?>
-    </p>
-    <?php endif; ?>
+    <div class="text-center">
+        <?= Html::a(Yii::t('app', 'Бюджет негізінде'), ['course/enroll', 'id' => $id, 'type' => '1', 'category_id' => $category_id], ['class' => $type == '1' ? 'btn btn-primary' : 'btn btn-outline-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Келісім шарт негізінде'), ['course/enroll', 'id' => $id, 'type' => '2', 'category_id' => $category_id], ['class' => $type == '2' ? 'btn btn-primary' : 'btn btn-outline-primary'])?>
+    </div>
 
-    <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
-    <?= GridView::widget([
-        'dataProvider' => $files,
-        'columns' => [
-            'title',
-            'file_path',
-            [
-                'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, File $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
-                }
-            ],
-        ],
+    <?php $form = yii\widgets\ActiveForm::begin([
+        'action' => ['course/check-enroll', 'id' => $id, 'type' => $type],
+        'method' => 'get', // Use GET or POST depending on your needs
     ]); ?>
 
-    <?php Pjax::end(); ?>
+    <?php if ($type == '2'): ?>
+        <hr>
+        <div class="text-center">
+            <iframe
+                    src="<?= Yii::getAlias('@web') ?>/uploads/example.pdf#toolbar=0&navpanes=0&scrollbar=0"
+                    width="600px"
+                    height="600px"
+                    style="border: none;">
+            </iframe>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-center">
+            <div class="form-check">
+                <?= Html::checkbox('agreeCheckbox', false, ['id' => 'agreeCheckbox']) ?>
+                <label class="form-check-label" for="agreeCheckbox">
+                    <?= Yii::t('app', 'Я ознакомлен с этим контрактом и согласен с его условиями!') ?>
+                </label>
+            </div>
+        </div>
+        <hr>
+    <?php endif; ?>
+
+    <div class="mt-5">
+        <?= GridView::widget([
+            'dataProvider' => $files,
+            'tableOptions' => ['class' => 'table table-hover'],
+            'pager' => [
+                'class' => \yii\bootstrap5\LinkPager::class,
+            ],
+            'showHeader' => false,
+            'summary' => false,
+            'rowOptions' => function ($model, $key, $index, $grid) use ($type) {
+                if ($index < 5) {
+                    return [];
+                }
+
+                if ($index === 5 && $type == '1') {
+                    return ['class' => 'row-6'];
+                } elseif ($index === 6 && $type == '2') {
+                    return ['class' => 'row-7'];
+                }
+
+                return ['style' => 'display: none'];
+            },
+            'columns' => [
+                [
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return Yii::$app->language == 'kz' ? $model->title : $model->title_ru;
+                    }
+                ],
+                [
+                    'headerOptions' => ['style' => 'width: 20%;'],
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        if (!$model->file_path) {
+                            return '---';
+                        }
+
+                        $fileName = basename($model->file_path); // get the last part of the path
+                        $url = Yii::getAlias('@web') . '/' . ltrim($model->file_path, '/'); // ensure proper URL
+
+                        return Html::a($fileName, $url, ['target' => '_blank']);
+                    }
+                ],
+                [
+                    'format' => 'raw',
+                    'value' => function($model) use ($type){
+                        return Html::a(Yii::t('app', 'Жүктеу'), ['file/update', 'id' => $model->id, 'type' => $type, 'category_id' => $model->course->category_id], ['class' => 'btn btn-outline-primary']);
+                    }
+                ]
+            ],
+
+        ]); ?>
+    </div>
+
+    <div class="text-center">
+        <?= Html::submitButton(Yii::t('app', 'Жазылу'), [
+            'class' => 'btn btn-outline-primary'
+        ]) ?>
+    </div>
+
+    <?php yii\widgets\ActiveForm::end(); ?>
 
 </div>
+

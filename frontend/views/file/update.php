@@ -1,23 +1,25 @@
 <?php
 
+use yii\bootstrap5\ActiveForm;
 use yii\helpers\Html;
 
 /** @var yii\web\View $this */
 /** @var common\models\File $model */
 
-$this->title = Yii::t('app', 'Update File: {name}', [
-    'name' => $model->id,
-]);
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Files'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = Yii::t('app', 'Update');
+$this->title = Yii::$app->language == 'kz' ? $model->title : $model->title_ru;
 ?>
 <div class="file-update">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?= $this->render('_form', [
-        'model' => $model,
-    ]) ?>
+    <?php $form = ActiveForm::begin(); ?>
+
+    <?= $form->field($model, 'file')->fileInput()->label(false) ?>
+
+    <div class="form-group">
+        <?= Html::submitButton(Yii::t('app', 'Жүктеу'), ['class' => 'btn btn-outline-primary']) ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
 
 </div>

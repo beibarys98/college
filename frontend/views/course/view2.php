@@ -51,7 +51,7 @@ $this->title = $model->title;
                 'headerOptions' => ['style' => 'width: 10%;'],
                 'format' => 'raw',
                 'value' => function ($model){
-                    return Html::a(Yii::t('app', 'Жазылу') , ['enroll', 'id' => $model->id], ['class' => 'btn btn-primary w-100']);
+                    return Html::a(Yii::t('app', 'Жазылу') , ['enroll', 'id' => $model->id, 'type' => '1', 'category_id' => $model->category_id], ['class' => 'btn btn-primary w-100']);
                 }
             ]
         ],
@@ -127,7 +127,8 @@ $this->title = $model->title;
     ]); ?>
 
     <br>
+    <?php endif; ?>
+    <?php endif; ?>
 
-    <?php endif; ?>
-    <?php endif; ?>
+    <h1>Сертификат</h1>
 </div>

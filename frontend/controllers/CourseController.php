@@ -6,12 +6,14 @@ use common\models\Category;
 use common\models\Certificate;
 use common\models\Course;
 use common\models\File;
+use common\models\FileType;
 use common\models\Participant;
 use common\models\search\CourseSearch;
 use common\models\search\ParticipantSearch;
 use common\models\Test;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -108,7 +110,7 @@ class CourseController extends Controller
         ]);
     }
 
-    public function actionEnroll($id)
+    public function actionEnroll($id, $type)
     {
         $participant = Participant::findOne(['id' => Yii::$app->user->identity->participant_id]);
 
@@ -116,14 +118,18 @@ class CourseController extends Controller
             ->andWhere(['participant_id' => $participant->id, 'course_id' => $id, 'type' => 'doc'])
             ->count();
 
-        if($fileCount == 0){
-            for ($i = 1; $i <= 6; $i++) {
+        if ($fileCount == 0) {
+            $fileTypes = FileType::find()->all();
+
+            foreach ($fileTypes as $fileType) {
                 $file = new File();
                 $file->participant_id = $participant->id;
                 $file->course_id = $id;
-                $file->file_path = ''; // or a default/placeholder value
-                $file->type = 'doc'; // or change depending on logic
-                $file->save(false); // use true to enable validation
+                $file->title = $fileType->title;
+                $file->title_ru = $fileType->title_ru;
+                $file->file_path = '';
+                $file->type = 'doc';
+                $file->save(false);
             }
         }
 
@@ -133,9 +139,39 @@ class CourseController extends Controller
 
         return $this->render('enroll', [
             'files' => $files,
+            'type' => $type,
+            'id' => $id,
         ]);
     }
 
+    public function actionCheckEnroll($id, $type){
+        $participant = Participant::findOne(['id' => Yii::$app->user->identity->participant_id]);
+
+        $requiredFilesCount = 6; // Assuming 7 files are required (6 or 7 based on type)
+        $uploadedFilesCount = File::find()
+            ->andWhere(['participant_id' => $participant->id, 'course_id' => $id, 'type' => 'doc'])
+            ->andWhere(['not', ['file_path' => '']]) // Check if file_path is not empty
+            ->count();
+
+        $checkboxChecked = Yii::$app->request->get('agreeCheckbox', false);
+        $category_id = Course::findOne(['id' => $id])->category_id;
+
+        if ($type == '2' && !$checkboxChecked) {
+            Yii::$app->session->setFlash('error', 'Please agree to the contract.');
+            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type, 'category_id' => $category_id]);
+        }
+
+        if ($uploadedFilesCount != $requiredFilesCount) {
+            Yii::$app->session->setFlash('error', 'Please upload all required files.');
+            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type, 'category_id' => $category_id]);
+        }
+
+        $participant->course_id = $id;
+        $participant->save(false);
+
+        Yii::$app->session->setFlash('success', 'You have been successfully enrolled.');
+        return $this->redirect(['course/view2', 'id' => $id, 'category_id' => $category_id]);
+    }
 
     public function actionCreate($category_id)
     {

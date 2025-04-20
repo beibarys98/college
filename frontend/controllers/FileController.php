@@ -4,9 +4,11 @@ namespace frontend\controllers;
 
 use common\models\File;
 use common\models\search\FileSearch;
+use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * FileController implements the CRUD actions for File model.
@@ -89,12 +91,26 @@ class FileController extends Controller
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public function actionUpdate($id, $type)
     {
         $model = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->request->isPost && $model->load($this->request->post())) {
+
+            $model->file = UploadedFile::getInstance($model, 'file');
+
+            if($model->file){
+                $filePath = 'documents/'
+                    . Yii::$app->security->generateRandomString(8)
+                    . '.' . $model->file->extension;
+
+                $model->file->saveAs($filePath);
+
+                $model->file_path = $filePath;
+                $model->save(false);
+
+                return $this->redirect(['course/enroll', 'id' => $model->course->id, 'type' => $type, 'category_id' => $model->course->category_id]);
+            }
         }
 
         return $this->render('update', [
