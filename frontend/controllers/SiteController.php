@@ -2,9 +2,13 @@
 
 namespace frontend\controllers;
 
+use common\models\Course;
 use common\models\Participant;
 use common\models\search\ParticipantSearch;
+use common\models\search\UserSearch;
+use common\models\User;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -62,15 +66,22 @@ class SiteController extends Controller
 
         if(Yii::$app->user->identity->ssn == 'admin'){
             Yii::$app->session->set('language', 'ru');
-            return $this->redirect('/participant/index');
+            return $this->redirect('/user/index');
         }else{
-            $searchModel = new ParticipantSearch();
-            $searchModel->id = Yii::$app->user->identity->participant_id;
+            $searchModel = new UserSearch();
+            $searchModel->id = Yii::$app->user->id;
             $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-            $model = Participant::find()->andWhere(['id' => Yii::$app->user->identity->participant_id])->one();
+
+            $model = User::findOne(Yii::$app->user->id);
+
+            $courseDP = new ActiveDataProvider([
+                'query' => Course::find()->andWhere(['category_id' => $model->category_id]),
+            ]);
+
             return $this->render('index', [
                 'model' => $model,
                 'dataProvider' => $dataProvider,
+                'courseDP' => $courseDP,
             ]);
         }
     }

@@ -4,9 +4,12 @@
 /** @var yii\bootstrap5\ActiveForm $form */
 /** @var SignupForm $model */
 
+use common\models\Course;
 use frontend\models\SignupForm;
+use kartik\select2\Select2;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\ActiveForm;
+use yii\helpers\ArrayHelper;
 
 $this->title = 'Signup';
 ?>
@@ -19,13 +22,27 @@ $this->title = 'Signup';
 
     <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
 
+    <?php
+    $titleField = Yii::$app->language === 'ru' ? 'title_ru' : 'title';
+
+    echo $form->field($model, 'category_id')->widget(Select2::classname(), [
+        'data' => ArrayHelper::map(\common\models\Category::find()->all(), 'id', $titleField),
+        'options' => [
+            'placeholder' => Yii::t('app', 'Мамандық'),
+        ],
+        'pluginOptions' => [
+            'allowClear' => true,
+        ],
+    ])->label(false);
+    ?>
+
     <?= $form->field($model, 'ssn')->textInput(['autofocus' => true, 'placeholder' => Yii::t('app', 'ЖСН')])->label(false) ?>
 
     <?= $form->field($model, 'name')->textInput(['placeholder' => Yii::t('app', 'ТАЖ')])->label(false) ?>
 
     <?= $form->field($model, 'telephone')->textInput(['placeholder' => 'Телефон'])->label(false) ?>
 
-    <?= $form->field($model, 'organisation')->textInput(['placeholder' => Yii::t('app', 'Мекеме')])->label(false) ?>
+    <?= $form->field($model, 'organization')->textInput(['placeholder' => Yii::t('app', 'Мекеме')])->label(false) ?>
 
     <div class="form-group text-center">
         <?= Html::submitButton(Yii::t('app', 'Тіркелу'), ['class' => 'btn btn-outline-success', 'name' => 'signup-button']) ?>

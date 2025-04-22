@@ -1,13 +1,7 @@
 <?php
 
-use common\models\Certificate;
-use common\models\Course;
-use common\models\Participant;
-use common\models\Test;
-use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\helpers\Html;
-use yii\helpers\Url;
 
 /** @var yii\web\View $this */
 /** @var $model */

@@ -4,6 +4,7 @@ use common\models\Certificate;
 use common\models\Course;
 use common\models\Participant;
 use common\models\Test;
+use common\models\User;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -67,8 +68,8 @@ $this->title = $model->title;
 
     <h1>Участники</h1>
     <p>
-        <?= Html::a(Yii::t('app', 'Добавить'), ['participant/create2', 'course_id' => $model->id, 'category_id' => $model->category_id], ['class' => 'btn btn-outline-primary']) ?>
-        <?= Html::a(Yii::t('app', 'Добавить из excel'), ['participant/create', 'course_id' => $model->id, 'category_id' => $model->category_id], ['class' => 'btn btn-outline-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Добавить'), ['user/create2', 'course_id' => $model->id, 'category_id' => $model->category_id], ['class' => 'btn btn-outline-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Добавить из excel'), ['user/create', 'course_id' => $model->id, 'category_id' => $model->category_id], ['class' => 'btn btn-outline-primary']) ?>
     </p>
 
     <?= GridView::widget([
@@ -88,14 +89,14 @@ $this->title = $model->title;
                 'label' => 'Имя',
                 'format' => 'raw',
                 'value' => function ($model){
-                    return Html::a($model->name, ['participant/view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
+                    return Html::a($model->name, ['user/view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
                 }
             ],
             [
                 'attribute' => 'ssn',
                 'label' => 'ИИН',
                 'value' => function ($model) {
-                    return $model->user->ssn ?: '';
+                    return $model->ssn ?: '';
                 }
             ],
             [
@@ -106,18 +107,18 @@ $this->title = $model->title;
                 }
             ],
             [
-                'attribute' => 'organisation',
+                'attribute' => 'organization',
                 'label' => 'Организация',
                 'value' => function ($model) {
-                    return $model->organisation ?: '';
+                    return $model->organization ?: '';
                 }
             ],
             [
                 'headerOptions' => ['style' => 'width: 5%;'],
                 'class' => ActionColumn::className(),
                 'template' => '{delete}',
-                'urlCreator' => function ($action, Participant $model){
-                    return Url::toRoute(['participant/delete', 'id' => $model->id, 'course_id' => $model->course_id]);
+                'urlCreator' => function ($action, User $model){
+                    return Url::toRoute(['user/delete', 'id' => $model->id, 'course_id' => $model->course_id]);
                 }
             ],
         ],

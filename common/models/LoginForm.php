@@ -52,12 +52,10 @@ class LoginForm extends Model
     protected function getUser()
     {
         if ($this->_user === null) {
-            // Try to find by SSN first
             $this->_user = User::find()->andWhere(['ssn' => $this->username])->one();
 
-            // If no user found and input is numeric, try participant_id
             if ($this->_user === null && is_numeric($this->username)) {
-                $this->_user = User::find()->andWhere(['participant_id' => $this->username])->one();
+                $this->_user = User::find()->andWhere(['id' => $this->username])->one();
             }
         }
 

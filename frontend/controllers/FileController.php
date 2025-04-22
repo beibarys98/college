@@ -109,7 +109,7 @@ class FileController extends Controller
                 $model->file_path = $filePath;
                 $model->save(false);
 
-                return $this->redirect(['course/enroll', 'id' => $model->course->id, 'type' => $type, 'category_id' => $model->course->category_id]);
+                return $this->redirect(['course/enroll', 'id' => $model->course->id, 'type' => $type]);
             }
         }
 

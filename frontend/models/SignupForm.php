@@ -2,6 +2,7 @@
 
 namespace frontend\models;
 
+use common\models\Category;
 use common\models\Participant;
 use Yii;
 use yii\base\Model;
@@ -9,14 +10,19 @@ use common\models\User;
 
 class SignupForm extends Model
 {
+    public $category_id;
     public $ssn;
     public $name;
     public $telephone;
-    public $organisation;
+    public $organization;
 
     public function rules()
     {
         return [
+
+            [['category_id'], 'integer'],
+            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
+
             ['ssn', 'trim'],
             ['ssn', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
             ['ssn', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот ИИН уже используется.'],
@@ -33,9 +39,9 @@ class SignupForm extends Model
             ['telephone', 'string', 'min' => 7, 'max' => 20],
 
             // Organisation rules
-            ['organisation', 'trim'],
-            ['organisation', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
-            ['organisation', 'string', 'max' => 255],
+            ['organization', 'trim'],
+            ['organization', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
+            ['organization', 'string', 'max' => 255],
         ];
     }
 
@@ -45,16 +51,13 @@ class SignupForm extends Model
             return null;
         }
 
-        $participant = new Participant();
-        $participant->course_id = null;
-        $participant->name = $this->name;
-        $participant->telephone = $this->telephone;
-        $participant->organisation = $this->organisation;
-        $participant->save(false);
-
         $user = new User();
-        $user->participant_id = $participant->id;
+        $user->category_id = $this->category_id;
+        $user->course_id = null;
         $user->ssn = $this->ssn;
+        $user->name = $this->name;
+        $user->telephone = $this->telephone;
+        $user->organization = $this->organization;
         $user->setPassword('password');
         $user->generateAuthKey();
 

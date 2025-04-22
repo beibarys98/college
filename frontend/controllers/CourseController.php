@@ -10,7 +10,9 @@ use common\models\FileType;
 use common\models\Participant;
 use common\models\search\CourseSearch;
 use common\models\search\ParticipantSearch;
+use common\models\search\UserSearch;
 use common\models\Test;
+use common\models\User;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
@@ -57,9 +59,9 @@ class CourseController extends Controller
             'query' => Course::find()->andWhere(['id' => $id]),
         ]);
 
-        $participantsSM = new ParticipantSearch();
+        $participantsSM = new UserSearch();
         $queryParams = $this->request->queryParams;
-        $queryParams['ParticipantSearch']['course_id'] = $id;
+        $queryParams['UserSearch']['course_id'] = $id;
         $participantsDP = $participantsSM->search($queryParams);
 
         $certificatesDP = new ActiveDataProvider([
@@ -85,37 +87,12 @@ class CourseController extends Controller
         ]);
     }
 
-    public function actionView2($id)
-    {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Course::find()->andWhere(['id' => $id]),
-        ]);
-
-        $testsDP = new ActiveDataProvider([
-            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'test', 'lang' => Yii::$app->language, 'status' => 'public']),
-        ]);
-
-        $surveyDP = new ActiveDataProvider([
-            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'survey', 'lang' => Yii::$app->language, 'status' => 'public']),
-        ]);
-
-        $participant = Participant::findOne(['id' => Yii::$app->user->identity->participant_id]);
-
-        return $this->render('view2', [
-            'model' => $this->findModel($id),
-            'dataProvider' => $dataProvider,
-            'testsDP' => $testsDP,
-            'surveyDP' => $surveyDP,
-            'participant' => $participant,
-        ]);
-    }
-
     public function actionEnroll($id, $type)
     {
-        $participant = Participant::findOne(['id' => Yii::$app->user->identity->participant_id]);
+        $user = User::findOne(Yii::$app->user->id);
 
         $fileCount = File::find()
-            ->andWhere(['participant_id' => $participant->id, 'course_id' => $id, 'type' => 'doc'])
+            ->andWhere(['user_id' => $user->id, 'course_id' => $id, 'type' => 'doc'])
             ->count();
 
         if ($fileCount == 0) {
@@ -123,7 +100,7 @@ class CourseController extends Controller
 
             foreach ($fileTypes as $fileType) {
                 $file = new File();
-                $file->participant_id = $participant->id;
+                $file->user_id = $user->id;
                 $file->course_id = $id;
                 $file->title = $fileType->title;
                 $file->title_ru = $fileType->title_ru;
@@ -134,7 +111,7 @@ class CourseController extends Controller
         }
 
         $files = new ActiveDataProvider([
-            'query' => File::find()->andWhere(['course_id' => $id, 'participant_id' => $participant->id, 'type' => 'doc']),
+            'query' => File::find()->andWhere(['course_id' => $id, 'user_id' => $user->id, 'type' => 'doc']),
         ]);
 
         return $this->render('enroll', [
@@ -145,32 +122,31 @@ class CourseController extends Controller
     }
 
     public function actionCheckEnroll($id, $type){
-        $participant = Participant::findOne(['id' => Yii::$app->user->identity->participant_id]);
+        $user = User::findOne(Yii::$app->user->id);
 
         $requiredFilesCount = 6; // Assuming 7 files are required (6 or 7 based on type)
         $uploadedFilesCount = File::find()
-            ->andWhere(['participant_id' => $participant->id, 'course_id' => $id, 'type' => 'doc'])
+            ->andWhere(['user_id' => $user->id, 'course_id' => $id, 'type' => 'doc'])
             ->andWhere(['not', ['file_path' => '']]) // Check if file_path is not empty
             ->count();
 
         $checkboxChecked = Yii::$app->request->get('agreeCheckbox', false);
-        $category_id = Course::findOne(['id' => $id])->category_id;
 
         if ($type == '2' && !$checkboxChecked) {
-            Yii::$app->session->setFlash('error', 'Please agree to the contract.');
-            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type, 'category_id' => $category_id]);
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Келісімшартқа келісіңіз!'));
+            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type]);
         }
 
         if ($uploadedFilesCount != $requiredFilesCount) {
-            Yii::$app->session->setFlash('error', 'Please upload all required files.');
-            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type, 'category_id' => $category_id]);
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Файлдарды жуктеңіз!'));
+            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type]);
         }
 
-        $participant->course_id = $id;
-        $participant->save(false);
+        $user->course_id = $id;
+        $user->save(false);
 
         Yii::$app->session->setFlash('success', 'You have been successfully enrolled.');
-        return $this->redirect(['course/view2', 'id' => $id, 'category_id' => $category_id]);
+        return $this->redirect(['course/view2', 'id' => $id]);
     }
 
     public function actionCreate($category_id)

@@ -6,6 +6,7 @@ use common\models\Course;
 use common\models\Participant;
 use common\models\search\ParticipantSearch;
 use common\models\User;
+use common\models\search\UserSearch;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yii;
 use yii\web\Controller;
@@ -13,8 +14,14 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
 
-class ParticipantController extends Controller
+/**
+ * UserController implements the CRUD actions for User model.
+ */
+class UserController extends Controller
 {
+    /**
+     * @inheritDoc
+     */
     public function behaviors()
     {
         return array_merge(
@@ -30,9 +37,14 @@ class ParticipantController extends Controller
         );
     }
 
+    /**
+     * Lists all User models.
+     *
+     * @return string
+     */
     public function actionIndex()
     {
-        $searchModel = new ParticipantSearch();
+        $searchModel = new UserSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         $dataProvider->pagination->pageSize = 100;
@@ -43,9 +55,15 @@ class ParticipantController extends Controller
         ]);
     }
 
+    /**
+     * Displays a single User model.
+     * @param int $id
+     * @return string
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     public function actionView($id)
     {
-        $searchModel = new ParticipantSearch();
+        $searchModel = new UserSearch();
         $searchModel->id = $id; // Pre-filter by participant ID
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
@@ -55,35 +73,39 @@ class ParticipantController extends Controller
         ]);
     }
 
+    /**
+     * Creates a new User model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return string|\yii\web\Response
+     */
     public function actionCreate($course_id)
     {
-        $model = new Participant();
+        $model = new User();
+
 
         if ($this->request->isPost) {
             $model->file = UploadedFile::getInstance($model, 'file');
 
             if ($model->file) {
                 $filePath = Yii::getAlias('@webroot/uploads/') . $model->file->name;
+
                 if ($model->file->saveAs($filePath)) {
                     $spreadsheet = IOFactory::load($filePath);
                     $sheet = $spreadsheet->getActiveSheet();
                     $rows = $sheet->toArray();
 
                     foreach ($rows as $row) {
-                        $participant = new Participant();
-                        $participant->course_id = $course_id;
-                        $participant->name = trim($row[0]);
-
-                        $participant->telephone = isset($row[1]) ? trim($row[1]) : '';
-                        $participant->organisation = isset($row[2]) ? trim($row[2]) : '';
-
-                        $participant->save(false);
-
                         $user = new User();
-                        $user->participant_id = $participant->id;
+                        $user->category_id = Course::findOne($course_id)->category_id;
+                        $user->course_id = $course_id;
                         $user->ssn = null;
+                        $user->name = trim($row[0]);
+                        $user->telephone = isset($row[1]) ? trim($row[1]) : '';
+                        $user->organization = isset($row[2]) ? trim($row[2]) : '';
+
                         $user->password = Yii::$app->security->generatePasswordHash('password');
                         $user->generateAuthKey();
+
                         $user->save(false);
                     }
 
@@ -105,51 +127,48 @@ class ParticipantController extends Controller
     }
 
     public function actionCreate2($course_id){
-        $model = new Participant();
-        $model2 = new User();
+        $model = new User();
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model2->load($this->request->post())) {
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            $model->category_id = Course::findOne($course_id)->category_id;
             $model->course_id = $course_id;
 
+            $model->password = Yii::$app->security->generatePasswordHash('password');
+            $model->generateAuthKey();
 
-            $model2->password = Yii::$app->security->generatePasswordHash('password');
-            $model2->generateAuthKey();
-            if ($model->validate() && $model2->validate()) {
+            if ($model->validate()) {
                 $model->save(false);
-                $model2->participant_id = $model->id;
-                $model2->save(false);
             }else{
                 return $this->render('create2', [
                     'model' => $model,
-                    'model2' => $model2,
                 ]);
             }
 
-            $model = Course::findOne($course_id);
-            $category_id = $model->category_id;
-
-            return $this->redirect(['course/view', 'id' => $course_id, 'category_id' => $category_id]);
+            return $this->redirect(['course/view', 'id' => $course_id, 'category_id' => $model->course->category_id]);
         }
 
         return $this->render('create2', [
             'model' => $model,
-            'model2' => $model2,
         ]);
     }
 
+    /**
+     * Updates an existing User model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param int $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-        $model2 = User::findOne(['participant_id' => $id]);
+        $model = User::findOne($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model2->load($this->request->post())) {
-            if ($model->validate() && $model2->validate()) {
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            if ($model->validate()) {
                 $model->save(false);
-                $model2->save(false);
             }else{
                 return $this->render('update', [
                     'model' => $model,
-                    'model2' => $model2,
                 ]);
             }
             if(Yii::$app->user->identity->ssn == 'admin'){
@@ -161,14 +180,18 @@ class ParticipantController extends Controller
 
         return $this->render('update', [
             'model' => $model,
-            'model2' => $model2,
         ]);
     }
 
+    /**
+     * Deletes an existing User model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param int $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     public function actionDelete($id, $course_id = null)
     {
-        $user = User::findOne(['participant_id' => $id]);
-        $user->delete();
         $this->findModel($id)->delete();
 
         if (!empty($course_id)) {
@@ -178,9 +201,16 @@ class ParticipantController extends Controller
         }
     }
 
+    /**
+     * Finds the User model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id
+     * @return User the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     protected function findModel($id)
     {
-        if (($model = Participant::findOne(['id' => $id])) !== null) {
+        if (($model = User::findOne(['id' => $id])) !== null) {
             return $model;
         }
 

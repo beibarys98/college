@@ -34,8 +34,8 @@ $currentCategory = Yii::$app->request->get('category_id');
             <ul class="nav nav-pills flex-column mb-auto">
                 <?php if (Yii::$app->user->identity->ssn == 'admin'): ?>
                 <li>
-                    <a href="<?= \yii\helpers\Url::to(['participant/index']) ?>"
-                       class="nav-link <?= Yii::$app->controller->id == 'participant' && Yii::$app->controller->action->id == 'index' ? 'active' : 'text-white' ?>">
+                    <a href="<?= \yii\helpers\Url::to(['user/index']) ?>"
+                       class="nav-link <?= Yii::$app->controller->id == 'user' && Yii::$app->controller->action->id == 'index' ? 'active' : 'text-white' ?>">
                         Участники
                     </a>
                 </li>
@@ -62,6 +62,7 @@ $currentCategory = Yii::$app->request->get('category_id');
                     </div>
                 </li>
                 <?php endif; ?>
+                <?php if (Yii::$app->user->identity->ssn == 'admin'): ?>
                 <hr>
                 <li class="nav-item">
                     <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#qualificationMenu" aria-expanded="false">
@@ -109,6 +110,8 @@ $currentCategory = Yii::$app->request->get('category_id');
                 ?>
                 <hr>
 
+                <?php endif; ?>
+
                 <?php if (Yii::$app->user->identity->ssn == 'admin'): ?>
                 <li>
                     <a href="<?= \yii\helpers\Url::to(['place/index']) ?>"
@@ -124,8 +127,7 @@ $currentCategory = Yii::$app->request->get('category_id');
             <div class="mt-auto">
                 <?php if (!Yii::$app->user->isGuest): ?>
                     <?php
-                    $identity = Yii::$app->user->identity;
-                    $username = $identity->ssn ?? $identity->participant_id;
+                    $username = Yii::$app->user->identity->ssn ?? Yii::$app->user->id;
                     ?>
                     <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'd-flex'])
                     . Html::submitButton(

@@ -18,18 +18,54 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
+    public $file;
+
     public function rules()
     {
         return [
+            [['file'], 'file', 'extensions' => 'xls, xlsx', 'skipOnEmpty' => true],
+
+            [['category_id'], 'integer'],
+            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
+
+            [['course_id'], 'integer'],
+            [['course_id'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['course_id' => 'id']],
+
             ['ssn', 'trim'],
             ['ssn', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот ИИН уже используется.'],
             ['ssn', 'match', 'pattern' => '/^\d{12}$/', 'message' => Yii::t('app', 'ЖСН 12 сан болуы тиіс!')],
+
+            ['name', 'trim'],
+            ['name', 'required', 'message' => Yii::t('app', 'Толтырыңыз!')],
+            ['name', 'match', 'pattern' => '/^[А-Яа-яЁё]+(?:\s+[А-Яа-яЁё]+)+$/u', 'message' => Yii::t('app', 'Кемінде 2 сөз және кириллица болуы тиіс!')],
+
+            // Telephone rules
+            ['telephone', 'trim'],
+            ['telephone', 'match', 'pattern' => '/^\+?[0-9\-()\s]+$/', 'message' => Yii::t('app', 'Телефон номерін енгізіңіз!')],
+            ['telephone', 'string', 'min' => 11, 'max' => 12,
+                'tooShort' => Yii::t('app', 'Телефон номерін енгізіңіз!'),
+                'tooLong' => Yii::t('app', 'Телефон номерін енгізіңіз!')
+            ],
+
+            // Organisation rules
+            ['organization', 'trim'],
+            ['organization', 'string', 'max' => 255],
         ];
     }
 
     public static function tableName()
     {
         return '{{%user}}';
+    }
+
+    public function getCourse()
+    {
+        return $this->hasOne(Course::class, ['id' => 'course_id']);
+    }
+
+    public function getCategory()
+    {
+        return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
     public static function findIdentity($id)

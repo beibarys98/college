@@ -1,5 +1,6 @@
 <?php
 
+use common\models\Course;
 use yii\helpers\Html;
 use yii\grid\GridView;
 
@@ -8,18 +9,18 @@ use yii\grid\GridView;
 /** @var $type */
 /** @var $id */
 
-$category_id = \common\models\Course::findOne($id)->category_id;
-$participant = \common\models\Participant::find()->andWhere(['id' => Yii::$app->user->identity->participant_id])->one();
+$course = Course::findOne($id);
+$category_id = $course->category_id;
 
-$this->title = 'Запись';
+$this->title = $course->title;
 ?>
 <div class="course-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <div class="text-center">
-        <?= Html::a(Yii::t('app', 'Бюджет негізінде'), ['course/enroll', 'id' => $id, 'type' => '1', 'category_id' => $category_id], ['class' => $type == '1' ? 'btn btn-primary' : 'btn btn-outline-primary']) ?>
-        <?= Html::a(Yii::t('app', 'Келісім шарт негізінде'), ['course/enroll', 'id' => $id, 'type' => '2', 'category_id' => $category_id], ['class' => $type == '2' ? 'btn btn-primary' : 'btn btn-outline-primary'])?>
+        <?= Html::a(Yii::t('app', 'Бюджет негізінде'), ['course/enroll', 'id' => $id, 'type' => '1'], ['class' => $type == '1' ? 'btn btn-primary' : 'btn btn-outline-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Келісім шарт негізінде'), ['course/enroll', 'id' => $id, 'type' => '2'], ['class' => $type == '2' ? 'btn btn-primary' : 'btn btn-outline-primary'])?>
     </div>
 
     <?php $form = yii\widgets\ActiveForm::begin([
@@ -39,10 +40,13 @@ $this->title = 'Запись';
         </div>
         <hr>
         <div class="d-flex justify-content-center">
-            <div class="form-check">
-                <?= Html::checkbox('agreeCheckbox', false, ['id' => 'agreeCheckbox']) ?>
+            <div class="form-check" style="font-size: 1.5rem;">
+                <?= Html::checkbox('agreeCheckbox', false, [
+                    'id' => 'agreeCheckbox',
+                    'style' => 'transform: scale(1.5); margin-right: 10px;',
+                ]) ?>
                 <label class="form-check-label" for="agreeCheckbox">
-                    <?= Yii::t('app', 'Я ознакомлен с этим контрактом и согласен с его условиями!') ?>
+                    <?= Yii::t('app', 'Мен осы келісімшартпен таныстым және келісемін!') ?>
                 </label>
             </div>
         </div>
@@ -95,7 +99,7 @@ $this->title = 'Запись';
                 [
                     'format' => 'raw',
                     'value' => function($model) use ($type){
-                        return Html::a(Yii::t('app', 'Жүктеу'), ['file/update', 'id' => $model->id, 'type' => $type, 'category_id' => $model->course->category_id], ['class' => 'btn btn-outline-primary']);
+                        return Html::a(Yii::t('app', 'Жүктеу'), ['file/update', 'id' => $model->id, 'type' => $type], ['class' => 'btn btn-outline-primary']);
                     }
                 ]
             ],
