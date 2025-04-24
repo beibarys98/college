@@ -44,7 +44,7 @@ $currentCategory = Yii::$app->request->get('category_id');
                     <div class="d-flex align-items-center w-100">
                         <!-- Профиль link that stretches -->
                         <a href="<?= \yii\helpers\Url::to(['site/index']) ?>"
-                           class="nav-link flex-grow-1 <?= Yii::$app->controller->id == 'site' && Yii::$app->controller->action->id == 'index' ? 'active' : 'text-white' ?>">
+                           class="nav-link flex-grow-1 <?= Yii::$app->controller->id == 'site' ? 'active' : 'text-white' ?>">
                             <?= Yii::t('app', 'Жеке кабинет') ?>
                         </a>
 

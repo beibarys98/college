@@ -87,68 +87,6 @@ class CourseController extends Controller
         ]);
     }
 
-    public function actionEnroll($id, $type)
-    {
-        $user = User::findOne(Yii::$app->user->id);
-
-        $fileCount = File::find()
-            ->andWhere(['user_id' => $user->id, 'course_id' => $id, 'type' => 'doc'])
-            ->count();
-
-        if ($fileCount == 0) {
-            $fileTypes = FileType::find()->all();
-
-            foreach ($fileTypes as $fileType) {
-                $file = new File();
-                $file->user_id = $user->id;
-                $file->course_id = $id;
-                $file->title = $fileType->title;
-                $file->title_ru = $fileType->title_ru;
-                $file->file_path = '';
-                $file->type = 'doc';
-                $file->save(false);
-            }
-        }
-
-        $files = new ActiveDataProvider([
-            'query' => File::find()->andWhere(['course_id' => $id, 'user_id' => $user->id, 'type' => 'doc']),
-        ]);
-
-        return $this->render('enroll', [
-            'files' => $files,
-            'type' => $type,
-            'id' => $id,
-        ]);
-    }
-
-    public function actionCheckEnroll($id, $type){
-        $user = User::findOne(Yii::$app->user->id);
-
-        $requiredFilesCount = 6; // Assuming 7 files are required (6 or 7 based on type)
-        $uploadedFilesCount = File::find()
-            ->andWhere(['user_id' => $user->id, 'course_id' => $id, 'type' => 'doc'])
-            ->andWhere(['not', ['file_path' => '']]) // Check if file_path is not empty
-            ->count();
-
-        $checkboxChecked = Yii::$app->request->get('agreeCheckbox', false);
-
-        if ($type == '2' && !$checkboxChecked) {
-            Yii::$app->session->setFlash('error', Yii::t('app', 'Келісімшартқа келісіңіз!'));
-            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type]);
-        }
-
-        if ($uploadedFilesCount != $requiredFilesCount) {
-            Yii::$app->session->setFlash('error', Yii::t('app', 'Файлдарды жуктеңіз!'));
-            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type]);
-        }
-
-        $user->course_id = $id;
-        $user->save(false);
-
-        Yii::$app->session->setFlash('success', 'You have been successfully enrolled.');
-        return $this->redirect(['course/view2', 'id' => $id]);
-    }
-
     public function actionCreate($category_id)
     {
         $model = new Course();

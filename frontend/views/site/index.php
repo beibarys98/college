@@ -3,6 +3,7 @@
 /** @var yii\web\View $this */
 /** @var $model */
 /** @var $dataProvider */
+/** @var $courseDP */
 
 use common\models\User;
 use yii\grid\ActionColumn;
@@ -96,7 +97,7 @@ $this->title = $model->name;
                 'headerOptions' => ['style' => 'width: 10%;'],
                 'format' => 'raw',
                 'value' => function ($model){
-                    return Html::a(Yii::t('app', 'Жазылу') , ['course/enroll', 'id' => $model->id, 'type' => '1'], ['class' => 'btn btn-primary w-100']);
+                    return Html::a(Yii::t('app', 'Жазылу') , ['site/enroll', 'id' => $model->id, 'type' => '1'], ['class' => 'btn btn-primary w-100']);
                 }
             ]
         ],

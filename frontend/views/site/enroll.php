@@ -19,12 +19,12 @@ $this->title = $course->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <div class="text-center">
-        <?= Html::a(Yii::t('app', 'Бюджет негізінде'), ['course/enroll', 'id' => $id, 'type' => '1'], ['class' => $type == '1' ? 'btn btn-primary' : 'btn btn-outline-primary']) ?>
-        <?= Html::a(Yii::t('app', 'Келісім шарт негізінде'), ['course/enroll', 'id' => $id, 'type' => '2'], ['class' => $type == '2' ? 'btn btn-primary' : 'btn btn-outline-primary'])?>
+        <?= Html::a(Yii::t('app', 'Бюджет негізінде'), ['site/enroll', 'id' => $id, 'type' => '1'], ['class' => $type == '1' ? 'btn btn-primary' : 'btn btn-outline-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Келісім шарт негізінде'), ['site/enroll', 'id' => $id, 'type' => '2'], ['class' => $type == '2' ? 'btn btn-primary' : 'btn btn-outline-primary'])?>
     </div>
 
     <?php $form = yii\widgets\ActiveForm::begin([
-        'action' => ['course/check-enroll', 'id' => $id, 'type' => $type],
+        'action' => ['site/check-enroll', 'id' => $id, 'type' => $type],
         'method' => 'get', // Use GET or POST depending on your needs
     ]); ?>
 
@@ -91,7 +91,7 @@ $this->title = $course->title;
                         }
 
                         $fileName = basename($model->file_path); // get the last part of the path
-                        $url = Yii::getAlias('@web') . '/' . ltrim($model->file_path, '/'); // ensure proper URL
+                        $url = Yii::getAlias('@web') . 'enroll.php/' . ltrim($model->file_path, '/'); // ensure proper URL
 
                         return Html::a($fileName, $url, ['target' => '_blank']);
                     }
