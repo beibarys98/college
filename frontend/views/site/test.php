@@ -20,7 +20,7 @@ $this->title = $model->name;
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        'tableOptions' => ['class' => 'table table-hover'],
+        'tableOptions' => ['class' => 'table table-striped'],
         'pager' => [
             'class' => \yii\bootstrap5\LinkPager::class,
         ],
@@ -68,7 +68,7 @@ $this->title = $model->name;
     <?= GridView::widget([
         'dataProvider' => $courseDP,
         'summary' => false,
-        'tableOptions' => ['class' => 'table table-hover'],
+        'tableOptions' => ['class' => 'table table-striped'],
         'columns' => [
             [
                 'attribute' => 'id',

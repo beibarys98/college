@@ -31,7 +31,7 @@ $this->title = $user->name;
 
     <?= GridView::widget([
         'dataProvider' => $userDP,
-        'tableOptions' => ['class' => 'table table-striped'],
+        'tableOptions' => ['class' => 'table table-hover'],
         'pager' => [
             'class' => \yii\bootstrap5\LinkPager::class,
         ],
@@ -63,29 +63,24 @@ $this->title = $user->name;
                 }
             ],
             [
-                'headerOptions' => ['style' => 'width: 5%;'],
-                'class' => ActionColumn::className(),
-                'template' => '{update}',
-                'urlCreator' => function ($action, User $model, $key, $index, $column) {
-                    return Url::toRoute(['user/update', 'id' => $model->id]);
-                }
+                'format' => 'raw',
+                'value' => function ($model) {
+                    return Html::a(Yii::t('app', 'Өзгерту'), ['user/update', 'id' => $model->id], ['class' => 'btn btn-outline-primary w-100']);
+                },
+                'headerOptions' => ['style' => 'width: 10%;'],
             ],
         ],
     ]); ?>
 
     <br>
 
-    <h1><?= Yii::$app->language == 'kz' ? $course->title : $course->title_ru ?></h1>
+    <h1><?= $course->title ?></h1>
 
     <?= GridView::widget([
         'dataProvider' => $courseDP,
         'summary' => false,
-        'tableOptions' => ['class' => 'table table-striped'],
+        'tableOptions' => ['class' => 'table table-hover'],
         'columns' => [
-            [
-                'attribute' => 'id',
-                'headerOptions' => ['style' => 'width: 5%;'],
-            ],
             [
                 'attribute' => 'month',
                 'label' => Yii::t('app', 'Ай'),
@@ -100,17 +95,6 @@ $this->title = $user->name;
                     return Yii::t('app', $model->duration);
                 }
             ],
-            [
-                'headerOptions' => ['style' => 'width: 5%;'],
-                'class' => ActionColumn::className(),
-                'template' => '{update}',
-                'urlCreator' => function ($action, Course $model, $key, $index, $column){
-                    if ($action === 'update') {
-                        return Url::toRoute(['update', 'id' => $model->id, 'category_id' => $model->category_id]); // Custom update URL
-                    }
-                    return Url::toRoute([$action, 'id' => $model->id]); // Default for other actions
-                }
-            ]
         ],
     ]) ?>
 
@@ -120,36 +104,32 @@ $this->title = $user->name;
 
     <?= GridView::widget([
         'dataProvider' => $testsDP,
-        'tableOptions' => ['class' => 'table table-striped'],
+        'tableOptions' => ['class' => 'table table-hover'],
         'pager' => [
             'class' => \yii\bootstrap5\LinkPager::class,
         ],
         'summary' => false,
         'columns' => [
             [
-                'attribute' => 'id',
-                'headerOptions' => ['style' => 'width: 5%;'],
-            ],
-            [
-                'attribute' => 'title',
-                'label' => 'Название',
-                'format' => 'raw',
-                'value' => function ($model){
-                    return Html::a('test_id_' . $model->id, ['test/view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
-                },
-            ],
-            [
                 'attribute' => 'lang',
-                'label' => 'Язык'
-            ],
-            [
-                'attribute' => 'status',
-                'label' => 'Статус'
+                'label' => Yii::t('app', 'Тіл')
             ],
             [
                 'attribute' => 'duration',
-                'label' => 'Длительность'
+                'label' => Yii::t('app', 'Длительность')
             ],
+            [
+                'format' => 'raw',
+                'value' => function ($model) {
+                    return Html::a(Yii::t('app', 'Бастау'),
+                        ['/site/test', 'id' => $model->id],
+                        [
+                            'class' => 'btn btn-outline-primary w-100',
+                            'data-confirm' => Yii::t('app', 'Сенімдісіз бе?'),
+                        ]);
+                },
+                'headerOptions' => ['style' => 'width: 10%;'],
+            ]
         ],
     ]); ?>
 
@@ -159,33 +139,30 @@ $this->title = $user->name;
 
     <?= GridView::widget([
         'dataProvider' => $surveyDP,
-        'tableOptions' => ['class' => 'table table-striped'],
+        'tableOptions' => ['class' => 'table table-hover'],
         'pager' => [
             'class' => \yii\bootstrap5\LinkPager::class,
         ],
         'summary' => false,
         'columns' => [
             [
-                'attribute' => 'id',
-                'headerOptions' => ['style' => 'width: 5%;'],
-            ],
-            [
-                'attribute' => 'title',
-                'label' => 'Название',
-                'format' => 'raw',
-                'value' => function ($model){
-                    return Html::a('survey_id_' . $model->id, ['test/view', 'id' => $model->id, 'category_id' => $model->course->category_id]);
-                }
-            ],
-            [
                 'attribute' => 'lang',
-                'label' => 'Язык'
+                'label' => Yii::t('app', 'Тіл')
             ],
             [
-                'attribute' => 'status',
-                'label' => 'Статус'
-            ],
+                'format' => 'raw',
+                'value' => function ($model) {
+                    return Html::a(Yii::t('app', 'Бастау'),
+                        ['/site/survey', 'id' => $model->id],
+                        [
+                            'class' => 'btn btn-outline-primary w-100',
+                            'data-confirm' => Yii::t('app', 'Сенімдісіз бе?'),
+                        ]);
+                },
+                'headerOptions' => ['style' => 'width: 10%;'],
+            ]
         ],
+
     ]); ?>
 
     <br>
@@ -194,7 +171,7 @@ $this->title = $user->name;
 
     <?= GridView::widget([
         'dataProvider' => $certificatesDP,
-        'tableOptions' => ['class' => 'table table-striped'],
+        'tableOptions' => ['class' => 'table table-hover'],
         'pager' => [
             'class' => \yii\bootstrap5\LinkPager::class,
         ],

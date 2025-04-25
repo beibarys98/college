@@ -150,7 +150,7 @@ class SiteController extends Controller
         $user->course_id = $id;
         $user->save(false);
 
-        Yii::$app->session->setFlash('success', 'You have been successfully enrolled.');
+        Yii::$app->session->setFlash('success', 'Циклға тіркелдіңіз!');
         return $this->redirect(['site/course', 'id' => $id]);
     }
 
@@ -165,15 +165,81 @@ class SiteController extends Controller
         ]);
 
         $testsDP = new ActiveDataProvider([
-            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'test']),
+            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'test', 'lang' => Yii::$app->language, 'status' => 'public']),
         ]);
 
         $surveyDP = new ActiveDataProvider([
-            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'survey']),
+            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'survey', 'lang' => Yii::$app->language, 'status' => 'public']),
         ]);
 
         $certificatesDP = new ActiveDataProvider([
-            'query' => Certificate::find()->andWhere(['course_id' => $id]),
+            'query' => File::find()->andWhere(['user_id' => Yii::$app->user->id, 'course_id' => $id, 'type' => 'cert']),
+        ]);
+
+        return $this->render('course', [
+            'user' => User::findOne(Yii::$app->user->id),
+            'userDP' => $userDP,
+            'course' => Course::findOne($id),
+            'courseDP' => $courseDP,
+            'testsDP' => $testsDP,
+            'surveyDP' => $surveyDP,
+            'certificatesDP' => $certificatesDP,
+        ]);
+    }
+
+    public function actionTest($id)
+    {
+        $searchModel = new UserSearch();
+        $searchModel->id = Yii::$app->user->id;
+        $userDP = $searchModel->search(Yii::$app->request->queryParams);
+
+        $courseDP = new ActiveDataProvider([
+            'query' => Course::find()->andWhere(['id' => $id]),
+        ]);
+
+        $testsDP = new ActiveDataProvider([
+            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'test', 'lang' => Yii::$app->language, 'status' => 'public']),
+        ]);
+
+        $surveyDP = new ActiveDataProvider([
+            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'survey', 'lang' => Yii::$app->language, 'status' => 'public']),
+        ]);
+
+        $certificatesDP = new ActiveDataProvider([
+            'query' => File::find()->andWhere(['user_id' => Yii::$app->user->id, 'course_id' => $id, 'type' => 'cert']),
+        ]);
+
+        return $this->render('course', [
+            'user' => User::findOne(Yii::$app->user->id),
+            'userDP' => $userDP,
+            'course' => Course::findOne($id),
+            'courseDP' => $courseDP,
+            'testsDP' => $testsDP,
+            'surveyDP' => $surveyDP,
+            'certificatesDP' => $certificatesDP,
+        ]);
+    }
+
+    public function actionSurvey($id)
+    {
+        $searchModel = new UserSearch();
+        $searchModel->id = Yii::$app->user->id;
+        $userDP = $searchModel->search(Yii::$app->request->queryParams);
+
+        $courseDP = new ActiveDataProvider([
+            'query' => Course::find()->andWhere(['id' => $id]),
+        ]);
+
+        $testsDP = new ActiveDataProvider([
+            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'test', 'lang' => Yii::$app->language, 'status' => 'public']),
+        ]);
+
+        $surveyDP = new ActiveDataProvider([
+            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'survey', 'lang' => Yii::$app->language, 'status' => 'public']),
+        ]);
+
+        $certificatesDP = new ActiveDataProvider([
+            'query' => File::find()->andWhere(['user_id' => Yii::$app->user->id, 'course_id' => $id, 'type' => 'cert']),
         ]);
 
         return $this->render('course', [
