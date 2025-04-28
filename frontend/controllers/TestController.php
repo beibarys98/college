@@ -3,22 +3,18 @@
 namespace frontend\controllers;
 
 use common\models\Answer;
-use common\models\Course;
 use common\models\Question;
+use common\models\search\UserTestSearch;
 use common\models\Test;
 use common\models\search\TestSearch;
-use DOMDocument;
-use DOMXPath;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpWord\Element\Text;
-use PhpOffice\PhpWord\Element\TextRun;
+use common\models\UserTest;
+use PhpOffice\PhpWord\IOFactory;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
-use ZipArchive;
 
 class TestController extends Controller
 {
@@ -48,15 +44,24 @@ class TestController extends Controller
         ]);
     }
 
-    public function actionView($id)
+    public function actionView($id, $mode = 'prt')
     {
         $dataProvider = new ActiveDataProvider([
             'query' => Test::find()->andWhere(['id' => $id]),
         ]);
 
+        $searchModel2 = new UserTestSearch();
+        $queryParams = $this->request->queryParams;
+        $queryParams['test_id'] = $id;
+        $dataProvider2 = $searchModel2->search($queryParams);
+
+
         return $this->render('view', [
             'model' => $this->findModel($id),
             'dataProvider' => $dataProvider,
+            'mode' => $mode,
+            'dataProvider2' => $dataProvider2,
+            'searchModel2' => $searchModel2,
         ]);
     }
 
@@ -80,7 +85,11 @@ class TestController extends Controller
                     $model->status = 'new';
                     $model->save(false);
 
-                    $this->parse($filePath, $model->id, $type);
+                    if($type == 'survey'){
+                        $this->parseSurvey($filePath, $model->id);
+                    }else{
+                        $this->parse($filePath, $model->id);
+                    }
 
                     unlink($filePath);
 
@@ -95,7 +104,55 @@ class TestController extends Controller
         ]);
     }
 
-    private function parse($filePath, $test_id, $type)
+    private function parseSurvey($filePath, $survey_id)
+    {
+        $phpWord = IOFactory::load($filePath);
+
+        $text = '';
+
+        foreach ($phpWord->getSections() as $section) {
+            foreach ($section->getElements() as $element) {
+                if (method_exists($element, 'getText')) {
+                    $text .= $element->getText() . "\n";
+                }
+            }
+        }
+
+        $lines = preg_split('/\r\n|\r|\n/', $text);
+
+        $currentQuestionText = '';
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+
+            // Detect start of a new question
+            if (preg_match('/^\s*\d+\s*[.)]\s*(.*)/', $line, $match)) {
+                if ($currentQuestionText !== '') {
+                    $this->saveSurveyQuestion($currentQuestionText, $survey_id);
+                }
+
+                $currentQuestionText = $match[1];
+            } else {
+                // Continuation of question text
+                $currentQuestionText .= "\n" . $line;
+            }
+        }
+
+        // Save the last question
+        if ($currentQuestionText !== '') {
+            $this->saveSurveyQuestion($currentQuestionText, $survey_id);
+        }
+    }
+
+    private function saveSurveyQuestion($questionText, $survey_id)
+    {
+        $question = new Question();
+        $question->test_id = $survey_id;
+        $question->question = trim($questionText);
+        $question->save(false);
+    }
+
+    private function parse($filePath, $test_id)
     {
         $zip = new \ZipArchive();
         if ($zip->open($filePath) === true) {
@@ -202,8 +259,10 @@ class TestController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+
         $course_id = $model->course_id;
         $category_id = $model->course->category_id;
+
         $model->delete();
 
         return $this->redirect(['course/view', 'id' => $course_id, 'category_id' => $category_id]);

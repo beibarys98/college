@@ -3,8 +3,11 @@
 use common\models\Certificate;
 use common\models\Course;
 use common\models\Participant;
+use common\models\Question;
 use common\models\Test;
 use common\models\User;
+use common\models\UserTest;
+use yii\bootstrap5\LinkPager;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -33,7 +36,7 @@ $this->title = $user->name;
         'dataProvider' => $userDP,
         'tableOptions' => ['class' => 'table table-hover'],
         'pager' => [
-            'class' => \yii\bootstrap5\LinkPager::class,
+            'class' => LinkPager::class,
         ],
         'summary' => false,
         'columns' => [
@@ -65,7 +68,7 @@ $this->title = $user->name;
             [
                 'format' => 'raw',
                 'value' => function ($model) {
-                    return Html::a(Yii::t('app', 'Өзгерту'), ['user/update', 'id' => $model->id], ['class' => 'btn btn-outline-primary w-100']);
+                    return Html::a(Yii::t('app', 'Өзгерту'), ['site/update', 'id' => $model->id], ['class' => 'btn btn-outline-primary w-100']);
                 },
                 'headerOptions' => ['style' => 'width: 10%;'],
             ],
@@ -106,7 +109,7 @@ $this->title = $user->name;
         'dataProvider' => $testsDP,
         'tableOptions' => ['class' => 'table table-hover'],
         'pager' => [
-            'class' => \yii\bootstrap5\LinkPager::class,
+            'class' => LinkPager::class,
         ],
         'summary' => false,
         'columns' => [
@@ -121,10 +124,19 @@ $this->title = $user->name;
             [
                 'format' => 'raw',
                 'value' => function ($model) {
+                    $userTest = UserTest::findOne(['user_id' => Yii::$app->user->id, 'test_id' => $model->id]);
+                    $isActive = '';
+                    if ($userTest && $userTest->end_time != null) {
+                        $isActive = 'disabled';
+                    }
+
+                    $firstQuestion = Question::find()->andWhere(['test_id' => $model->id])->one();
+                    $firstQuestionId = $firstQuestion ? $firstQuestion->id : null;
+
                     return Html::a(Yii::t('app', 'Бастау'),
-                        ['/site/test', 'id' => $model->id],
+                        ['/site/test', 'id' => $firstQuestionId],
                         [
-                            'class' => 'btn btn-outline-primary w-100',
+                            'class' => 'btn btn-outline-primary w-100 ' . $isActive,
                             'data-confirm' => Yii::t('app', 'Сенімдісіз бе?'),
                         ]);
                 },
@@ -141,7 +153,7 @@ $this->title = $user->name;
         'dataProvider' => $surveyDP,
         'tableOptions' => ['class' => 'table table-hover'],
         'pager' => [
-            'class' => \yii\bootstrap5\LinkPager::class,
+            'class' => LinkPager::class,
         ],
         'summary' => false,
         'columns' => [
@@ -152,10 +164,19 @@ $this->title = $user->name;
             [
                 'format' => 'raw',
                 'value' => function ($model) {
+                    $userTest = UserTest::findOne(['user_id' => Yii::$app->user->id, 'test_id' => $model->id]);
+                    $isActive = '';
+                    if ($userTest && $userTest->end_time != null) {
+                        $isActive = 'disabled';
+                    }
+
+                    $firstQuestion = Question::find()->andWhere(['test_id' => $model->id])->one();
+                    $firstQuestionId = $firstQuestion ? $firstQuestion->id : null;
+
                     return Html::a(Yii::t('app', 'Бастау'),
-                        ['/site/survey', 'id' => $model->id],
+                        ['/site/survey', 'id' => $firstQuestionId],
                         [
-                            'class' => 'btn btn-outline-primary w-100',
+                            'class' => 'btn btn-outline-primary w-100 ' . $isActive,
                             'data-confirm' => Yii::t('app', 'Сенімдісіз бе?'),
                         ]);
                 },
@@ -173,7 +194,7 @@ $this->title = $user->name;
         'dataProvider' => $certificatesDP,
         'tableOptions' => ['class' => 'table table-hover'],
         'pager' => [
-            'class' => \yii\bootstrap5\LinkPager::class,
+            'class' => LinkPager::class,
         ],
         'summary' => false,
         'showHeader' => false,
@@ -186,7 +207,9 @@ $this->title = $user->name;
                 'attribute' => 'img_path',
                 'format' => 'raw',
                 'value' => function ($model){
-                    return Html::a('certificate_id_' . $model->id, [$model->img_path], ['target' => '_blank']);
+                    return Html::a('certificate_id_' . $model->id,
+                        [$model->img_path],
+                        ['target' => '_blank']);
                 }
             ],
         ],

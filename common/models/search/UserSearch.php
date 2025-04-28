@@ -13,6 +13,8 @@ class UserSearch extends User
 {
     public $category;
     public $course;
+    public $time;
+    public $result;
 
     /**
      * {@inheritdoc}
@@ -21,7 +23,8 @@ class UserSearch extends User
     {
         return [
             [['id', 'course_id'], 'integer'],
-            [['ssn', 'name', 'telephone', 'organization', 'auth_key', 'password_hash', 'course', 'category'], 'safe'],
+            [['ssn', 'name', 'telephone', 'organization',
+                'auth_key', 'password_hash', 'course', 'category', 'time', 'result'], 'safe'],
         ];
     }
 

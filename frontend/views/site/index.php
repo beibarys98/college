@@ -96,7 +96,7 @@ $this->title = $model->name;
                 'headerOptions' => ['style' => 'width: 10%;'],
                 'format' => 'raw',
                 'value' => function ($model){
-                    return Html::a(Yii::t('app', 'Жазылу') , ['site/enroll', 'id' => $model->id, 'type' => '1'], ['class' => 'btn btn-primary w-100']);
+                    return Html::a(Yii::t('app', 'Жазылу') , ['site/enroll', 'id' => $model->id, 'type' => '1'], ['class' => 'btn btn-outline-primary w-100']);
                 }
             ]
         ],

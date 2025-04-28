@@ -3,6 +3,7 @@
 use common\models\Answer;
 use common\models\Question;
 use common\models\Test;
+use common\models\UserTest;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -92,7 +93,17 @@ $this->title = $model->type == 'test' ? 'test_id_' . $model->id : 'survey_id_' .
             ['class' => $model->status == 'certificated' ? 'btn btn-primary' : 'btn btn-outline-primary']) ?>
     </div>
     <hr>
+    <div>
+        <?= Html::a('тест',
+            ['test/view', 'id' => $model->id, 'mode' => 'test', 'category_id' => $model->course->category_id],
+            ['class' => $mode == 'test' ? 'btn btn-primary' : 'btn btn-outline-primary']) ?>
+        <?= Html::a('участники',
+            ['test/view', 'id' => $model->id, 'mode' => 'prt', 'category_id' => $model->course->category_id],
+            ['class' => $mode == 'prt' ? 'btn btn-primary' : 'btn btn-outline-primary']) ?>
+    </div>
+    <hr>
 
+    <?php if($mode == 'test'): ?>
     <div style="font-size: 20px;">
         <?php
         $questions = Question::find()->andWhere(['test_id' => $model->id])->all();
@@ -161,16 +172,40 @@ $this->title = $model->type == 'test' ? 'test_id_' . $model->id : 'survey_id_' .
                     }
                 }
             }
-            echo '<span style="margin: 15px;"></span>'
-                . Html::a('+ ответ',
-                    ['answer/create', 'id' => $question->id, 'category_id' => $model->course->category_id],
-                    ['class' => 'btn btn-sm btn-outline-primary']) . '<br>';
+            if($model->type == 'test'){
+                echo '<span style="margin: 15px;"></span>'
+                    . Html::a('+ ответ',
+                        ['answer/create', 'id' => $question->id, 'category_id' => $model->course->category_id],
+                        ['class' => 'btn btn-sm btn-outline-primary']) . '<br>';
+            }
+
         }
         echo Html::a('+ вопрос',
                 ['question/create', 'id' => $model->id, 'category_id' => $model->course->category_id],
                 ['class' => 'btn btn-sm btn-outline-primary']) . '<br>';
         ?>
     </div>
+    <?php else: ?>
+    <div>
+        <?= GridView::widget([
+            'dataProvider' => $dataProvider2,
+            'filterModel' => $searchModel2,
+            'columns' => [
+                'id',
+                'user_id',
+                'start_time',
+                'end_time',
+                'result',
+                [
+                    'class' => ActionColumn::className(),
+                    'urlCreator' => function ($action, UserTest $model, $key, $index, $column) {
+                        return Url::toRoute([$action, 'id' => $model->id]);
+                    }
+                ],
+            ],
+        ]); ?>
+    </div>
+    <?php endif; ?>
 
 
 </div>

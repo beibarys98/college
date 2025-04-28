@@ -218,7 +218,7 @@ $this->title = $model->title;
                 'class' => ActionColumn::className(),
                 'template' => '{delete}',
                 'urlCreator' => function ($action, Test $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
+                    return Url::toRoute(['test/delete', 'id' => $model->id]);
                 }
             ],
         ],

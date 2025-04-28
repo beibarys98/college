@@ -2,13 +2,22 @@
 
 namespace frontend\controllers;
 
+use common\models\Answer;
 use common\models\Certificate;
 use common\models\Course;
 use common\models\File;
 use common\models\FileType;
+use common\models\Question;
+use common\models\Result;
 use common\models\search\UserSearch;
 use common\models\Test;
 use common\models\User;
+use common\models\UserAnswer;
+use common\models\UserSurvey;
+use common\models\UserTest;
+use DateTime;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
@@ -129,7 +138,7 @@ class SiteController extends Controller
     public function actionCheckEnroll($id, $type){
         $user = User::findOne(Yii::$app->user->id);
 
-        $requiredFilesCount = 6; // Assuming 7 files are required (6 or 7 based on type)
+        $requiredFilesCount = 5;
         $uploadedFilesCount = File::find()
             ->andWhere(['user_id' => $user->id, 'course_id' => $id, 'type' => 'doc'])
             ->andWhere(['not', ['file_path' => '']]) // Check if file_path is not empty
@@ -139,12 +148,12 @@ class SiteController extends Controller
 
         if ($type == '2' && !$checkboxChecked) {
             Yii::$app->session->setFlash('error', Yii::t('app', 'Келісімшартқа келісіңіз!'));
-            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type]);
+            return $this->redirect(['site/enroll', 'id' => $id, 'type' => $type]);
         }
 
         if ($uploadedFilesCount != $requiredFilesCount) {
-            Yii::$app->session->setFlash('error', Yii::t('app', 'Файлдарды жуктеңіз!'));
-            return $this->redirect(['course/enroll', 'id' => $id, 'type' => $type]);
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Файлдарды жүктеңіз!'));
+            return $this->redirect(['site/enroll', 'id' => $id, 'type' => $type]);
         }
 
         $user->course_id = $id;
@@ -189,67 +198,227 @@ class SiteController extends Controller
 
     public function actionTest($id)
     {
-        $searchModel = new UserSearch();
-        $searchModel->id = Yii::$app->user->id;
-        $userDP = $searchModel->search(Yii::$app->request->queryParams);
+        $question = Question::findOne($id);
+        $test = Test::findOne($question->test_id);
+        $userTest = UserTest::findOne(['user_id' => Yii::$app->user->id, 'test_id' => $test->id]) ?: new UserTest();
 
-        $courseDP = new ActiveDataProvider([
-            'query' => Course::find()->andWhere(['id' => $id]),
+        if(!$userTest->start_time){
+            $userTest->user_id = Yii::$app->user->id;
+            $userTest->test_id = $test->id;
+            $userTest->start_time = date('Y-m-d H:i:s');
+            $userTest->save(false);
+        }
+
+        return $this->render('/site/test', [
+            'question' => $question,
+            'userTest' => $userTest,
+        ]);
+    }
+
+    public function actionSubmit()
+    {
+        if(Yii::$app->user->isGuest){
+            return $this->redirect(['/site/login']);
+        }
+
+        $answerId = Yii::$app->request->get('answer_id');
+        $questionId = Yii::$app->request->get('question_id');
+        $userId = Yii::$app->user->id;
+
+        if ($answerId === null) {
+            Yii::$app->session->setFlash('error', 'Жауап таңдалмады!');
+            return $this->redirect(['site/test', 'id' => $questionId]);
+        }
+
+        $userAnswer = UserAnswer::findOne([
+            'user_id' => $userId,
+            'question_id' => $questionId,
         ]);
 
-        $testsDP = new ActiveDataProvider([
-            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'test', 'lang' => Yii::$app->language, 'status' => 'public']),
-        ]);
+        if (!$userAnswer) {
+            $userAnswer = new UserAnswer();
+            $userAnswer->user_id = $userId;
+            $userAnswer->question_id = $questionId;
+        }
+        $userAnswer->answer_id = $answerId;
+        $userAnswer->save(false);
 
-        $surveyDP = new ActiveDataProvider([
-            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'survey', 'lang' => Yii::$app->language, 'status' => 'public']),
-        ]);
+        $nextQuestion = Question::find()
+            ->andWhere(['test_id' => Question::findOne($questionId)->test_id])
+            ->andWhere(['>', 'id', $questionId])
+            ->orderBy(['id' => SORT_ASC])
+            ->one();
 
-        $certificatesDP = new ActiveDataProvider([
-            'query' => File::find()->andWhere(['user_id' => Yii::$app->user->id, 'course_id' => $id, 'type' => 'cert']),
-        ]);
+        if (!$nextQuestion) {
+            $nextQuestion = Question::findOne(['test_id' => Question::findOne($questionId)->test_id]);
+        }
 
-        return $this->render('course', [
-            'user' => User::findOne(Yii::$app->user->id),
-            'userDP' => $userDP,
-            'course' => Course::findOne($id),
-            'courseDP' => $courseDP,
-            'testsDP' => $testsDP,
-            'surveyDP' => $surveyDP,
-            'certificatesDP' => $certificatesDP,
-        ]);
+        return $this->redirect(['site/test', 'id' => $nextQuestion->id]);
+    }
+
+    public function actionEnd($id){
+        if(Yii::$app->user->isGuest){
+            return $this->redirect(['/site/login']);
+        }
+
+        $test = Test::findOne(Question::findOne($id)->test_id);
+        $userTest = UserTest::findOne(['user_id' => Yii::$app->user->id, 'test_id' => $test->id]);
+
+        //unanswered questions? return to test
+        $now = new DateTime();
+        $startTime = new DateTime($userTest->start_time);
+        $testDuration = new DateTime($test->duration);
+
+        $h = (int)$testDuration->format('H') * 3600;
+        $i = (int)$testDuration->format('i') * 60;
+        $s = (int)$testDuration->format('s');
+
+        $durationInSeconds = $h + $i + $s;
+        $timeElapsed = $now->getTimestamp() - $startTime->getTimestamp();
+
+        if ($timeElapsed < $durationInSeconds) {
+            $totalQuestions = Question::find()
+                ->andWhere(['test_id' => $test->id])
+                ->count();
+
+            $answeredQuestions = UserAnswer::find()
+                ->joinWith('question')
+                ->andWhere(['user_answer.user_id' => $userTest->user_id])
+                ->andWhere(['question.test_id' => $test->id])
+                ->andWhere(['IS NOT', 'user_answer.answer_id', null]) // Ensure it's answered
+                ->count();
+
+            if ($answeredQuestions != $totalQuestions) {
+                Yii::$app->session->setFlash('warning', Yii::t('app', 'Барлық сұрақтарға жауап беріңіз!'));
+                return $this->redirect(['site/test', 'id' => $id]);
+            }
+        }
+
+        //save end time
+        $userTest->end_time = (new \DateTime())->format('Y-m-d H:i:s');
+        $userTest->save(false);
+
+        //save results in db
+        $questions = Question::find()->andWhere(['test_id' => $test->id])->all();
+
+        $score = 0;
+        foreach ($questions as $q) {
+            $teacherAnswer = UserAnswer::findOne([
+                'user_id' => $userTest->user_id,
+                'question_id' => $q->id]);
+
+            if ($teacherAnswer !== null) {;
+                if ($teacherAnswer->answer_id == $q->answer) {
+                    $score++;
+                }
+            }
+        }
+
+        $userTest->result = $score;
+        $userTest->save(false);
+
+        return $this->redirect(['/site/index']);
     }
 
     public function actionSurvey($id)
     {
-        $searchModel = new UserSearch();
-        $searchModel->id = Yii::$app->user->id;
-        $userDP = $searchModel->search(Yii::$app->request->queryParams);
+        $question = Question::findOne($id);
+        $test = Test::findOne($question->test_id);
+        $userTest = UserTest::findOne(['user_id' => Yii::$app->user->id, 'test_id' => $test->id]) ?: new UserTest();
 
-        $courseDP = new ActiveDataProvider([
-            'query' => Course::find()->andWhere(['id' => $id]),
+        if(!$userTest->start_time){
+            $userTest->user_id = Yii::$app->user->id;
+            $userTest->test_id = $test->id;
+            $userTest->start_time = date('Y-m-d H:i:s');
+            $userTest->save(false);
+        }
+
+        return $this->render('/site/survey', [
+            'question' => $question,
+            'userTest' => $userTest,
         ]);
+    }
 
-        $testsDP = new ActiveDataProvider([
-            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'test', 'lang' => Yii::$app->language, 'status' => 'public']),
-        ]);
+    public function actionSurveySubmit()
+    {
+        $questionId = Yii::$app->request->get('question_id');
+        $answer = Yii::$app->request->get('answer');
 
-        $surveyDP = new ActiveDataProvider([
-            'query' => Test::find()->andWhere(['course_id' => $id, 'type' => 'survey', 'lang' => Yii::$app->language, 'status' => 'public']),
-        ]);
+        // Find or create a SurveyAnswer model
+        $surveyAnswer = UserSurvey::find()
+            ->andWhere(['user_id' => Yii::$app->user->id, 'question_id' => $questionId])
+            ->one();
 
-        $certificatesDP = new ActiveDataProvider([
-            'query' => File::find()->andWhere(['user_id' => Yii::$app->user->id, 'course_id' => $id, 'type' => 'cert']),
-        ]);
+        if (!$surveyAnswer) {
+            $surveyAnswer = new UserSurvey();
+            $surveyAnswer->user_id = Yii::$app->user->id;
+            $surveyAnswer->question_id = $questionId;
+        }
 
-        return $this->render('course', [
-            'user' => User::findOne(Yii::$app->user->id),
-            'userDP' => $userDP,
-            'course' => Course::findOne($id),
-            'courseDP' => $courseDP,
-            'testsDP' => $testsDP,
-            'surveyDP' => $surveyDP,
-            'certificatesDP' => $certificatesDP,
+        $surveyAnswer->answer = $answer;
+        $surveyAnswer->save(false);
+
+        $nextQuestion = Question::find()
+            ->andWhere(['test_id' => Question::findOne($questionId)->test_id])
+            ->andWhere(['>', 'id', $questionId])
+            ->orderBy(['id' => SORT_ASC])
+            ->one();
+
+        if (!$nextQuestion) {
+            $nextQuestion = Question::findOne(['test_id' => Question::findOne($questionId)->test_id]);
+        }
+
+        return $this->redirect(['site/survey', 'id' => $nextQuestion->id]); // Example redirect to the next question
+    }
+
+    public function actionEndSurvey($id){
+        if(Yii::$app->user->isGuest){
+            return $this->redirect(['/site/login']);
+        }
+
+        $test = Test::findOne(Question::findOne($id)->test_id);
+        $userTest = UserTest::findOne(['user_id' => Yii::$app->user->id, 'test_id' => $test->id]);
+
+        $totalQuestions = Question::find()
+            ->andWhere(['test_id' => $test->id])
+            ->count();
+
+        $answeredQuestions = UserSurvey::find()
+            ->joinWith('question')
+            ->andWhere(['user_survey.user_id' => $userTest->user_id])
+            ->andWhere(['question.test_id' => $test->id])
+            ->andWhere(['IS NOT', 'user_survey.answer', null]) // Ensure it's answered
+            ->count();
+
+        if ($answeredQuestions != $totalQuestions) {
+            Yii::$app->session->setFlash('warning', Yii::t('app', 'Барлық сұрақтарға жауап беріңіз!'));
+            return $this->redirect(['site/survey', 'id' => $id]);
+        }
+
+        //save end time
+        $userTest->end_time = (new \DateTime())->format('Y-m-d H:i:s');
+        $userTest->save(false);
+
+        return $this->redirect(['/site/index']);
+    }
+
+    public function actionUpdate($id)
+    {
+        $model = User::findOne($id);
+
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            if ($model->validate()) {
+                $model->save(false);
+            }else{
+                return $this->render('update', [
+                    'model' => $model,
+                ]);
+            }
+            return $this->redirect(['site/course', 'id' => $model->course_id]);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
         ]);
     }
 
